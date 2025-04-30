@@ -43,7 +43,7 @@ int CIntersection::Inside(const vector& Point, const CPrimitive* C) const {
 
 	POSITION T = Objects.GetHeadPosition();
 
-	while (T!=0) {
+    while (T != Objects.GetEndPosition()) {
 		Obj=(pCPrimitive) Objects.GetNext(T);
 		if (Obj==C) continue;
 		if (!Obj->Inside(Point,0))

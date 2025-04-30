@@ -2,6 +2,9 @@
 #define __VECTOR_H__
 
 #include <math.h>
+// Forward declaration of CVector and its Normalize function for operator! lookup
+class CVector;
+inline CVector Normalize(const CVector& V);
 
 class CVector {
 

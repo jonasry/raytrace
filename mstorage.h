@@ -11,7 +11,9 @@
 #include "defs.h"
 #include "rtdefs.h"
 
-using namespace std;
+// Import only necessary names from std
+using std::ofstream;
+using std::ios;
 
 typedef unsigned char BYTE;
 

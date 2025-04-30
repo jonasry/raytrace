@@ -7,6 +7,7 @@
 #include "light.h"
 #include "studio.h"
 #include "prim2.h"
+#include "texture.h"  // for CTexture
 
 
 int Shaded(CRay::DifferentialArea dA, const CStudio* S, const CLight* L);
@@ -47,10 +48,11 @@ CColor CRay::Sample(const CStudio* Studio, unsigned RecurseLevel) {
 
 	//	Add direct illumination:
 
-	POSITION T = Studio->Lights.GetHeadPosition();
-	CLight* L;
-
-	while(T!=0) {
+    POSITION T = Studio->Lights.GetHeadPosition();
+    CLight* L;
+    
+    // Iterate through all lights
+    while (T != Studio->Lights.GetEndPosition()) {
 		L = (CLight *)Studio->Lights.GetNext(T);
 		if (!Shaded(m_dA,Studio,L)) {
 			vector v=L->Loc()-m_dA.Loc;

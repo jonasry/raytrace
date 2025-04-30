@@ -1,28 +1,31 @@
-//	Studio.cpp
-   
-#include "studio.h"   
-   
-CStudio::~CStudio() {
+// Studio.cpp
 
-	POSITION T1, T2;
-	CObject * obj;
-	
-	T1 = Lights.GetHeadPosition();
-    
-	 while (T1!=0) {
-    	T2 	= T1;
-		obj = Lights.GetNext(T1);
-		Lights.RemoveAt(T2);
-		delete (CSceneObject *) obj;
-	}
+#include "studio.h"
+#include "light.h"
+#include "texture.h"
 
-	T1 = Textures.GetHeadPosition();
-    
-	 while (T1!=0) {
-    	T2 	= T1;
-		obj = Textures.GetNext(T1);
-		Textures.RemoveAt(T2);
-		delete (CSceneObject *) obj;
-	}
+// Constructor initializes lists and recursion depth
+CStudio::CStudio(int depth)
+    : Lights()
+    , Textures()
+    , Objects(0)
+    , RecurseDepth(depth)
+{
+}
 
+// Destructor deletes allocated lights and textures; scene objects are managed by CGroup
+CStudio::~CStudio()
+{
+    // Delete all lights
+    POSITION pos = Lights.GetHeadPosition();
+    while (pos != Lights.GetEndPosition()) {
+        CLight* light = static_cast<CLight*>(Lights.GetNext(pos));
+        delete light;
+    }
+    // Delete all textures
+    pos = Textures.GetHeadPosition();
+    while (pos != Textures.GetEndPosition()) {
+        CTexture* tex = static_cast<CTexture*>(Textures.GetNext(pos));
+        delete tex;
+    }
 }

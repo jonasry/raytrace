@@ -9,7 +9,7 @@ CInterface::~CInterface() {
 
 	T1 = Cameras.GetHeadPosition();
     
-    while (T1!=NULL) {
+    while (T1 != Cameras.GetEndPosition()) {
     	T2 	= T1;
 		obj = Cameras.GetNext(T1);
 		Cameras.RemoveAt(T2);
@@ -23,7 +23,7 @@ void CInterface::SnapAll() {
 	CCamera* Cam;
 	POSITION C = Cameras.GetHeadPosition();
 
-	while (C!=NULL) {
+    while (C != Cameras.GetEndPosition()) {
 		Cam=(CCamera *) Cameras.GetNext(C);
 		Cam->Snap();
 	}

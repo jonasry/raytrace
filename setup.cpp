@@ -79,8 +79,8 @@ void SetupLights(CStudio& Studio) {
 
 void SetupObjects(CStudio& Studio) {
 
-	const 	Flip = CPrimitive::Invert;
-	const 	NoFlip = CPrimitive::NonInvert;
+		const int Flip = CPrimitive::Invert;
+		const int NoFlip = CPrimitive::NonInvert;
 
 	//	Define Objects
 	//	--------------

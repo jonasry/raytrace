@@ -1,5 +1,5 @@
 #include "matrix.h"
-#include <iostream.h>
+// #include <iostream.h> // removed legacy include
 
 Matrix Matrix::ZeroMatrix;
 Matrix Matrix::IdentityMatrix(1);
@@ -124,7 +124,7 @@ const Matrix& Matrix::operator *=(const Matrix& M) {
 	Result.m_Body[i][j]=this->m_Body[i][k] * M.m_Body[k][j];
     }
 
-  for (i=0; i<4; i++) 
+  for (int i=0; i<4; i++) 
     for (int j=0; j<4; j++)
       this->m_Body[i][j] = Result.m_Body[i][j];
   

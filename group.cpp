@@ -11,7 +11,7 @@ CGroup::~CGroup() {
 	pCPrimitive obj;
 	T1 = Objects.GetHeadPosition();
     
-    while (T1!=0) {
+    while (T1 != Objects.GetEndPosition()) {
     	T2 = T1;
 		obj = (pCPrimitive) Objects.GetNext(T1);
 		Objects.RemoveAt(T2);
@@ -34,7 +34,7 @@ CRTBase::Intersection CGroup::Intersect(CRay& Ray) const {
 
 	POSITION T = Objects.GetHeadPosition();
 
-	while (T!=0) { 
+    while (T != Objects.GetEndPosition()) { 
 	
         Obj=(CPrimitive *)Objects.GetNext(T);
         
@@ -67,7 +67,7 @@ int CGroup::Inside(const vector& Point, const CPrimitive* C) const {
 
 	POSITION T = Objects.GetHeadPosition();
 
-	while (T!=0) {                      
+	while (T != Objects.GetEndPosition()) {                      
 	
 		Obj=(pCPrimitive)Objects.GetNext(T);
 		
@@ -86,7 +86,7 @@ void CGroup::Translate(vector T) {
 
 	POSITION P = Objects.GetHeadPosition();
 
-	while (P!=0) {                      
+	while (P != Objects.GetEndPosition()) {                      
 	
 		Obj=(pCPrimitive)Objects.GetNext(P);
 		
@@ -103,7 +103,7 @@ void CGroup::Scale(vector S) {
 
 	POSITION P = Objects.GetHeadPosition();
 
-	while (P!=0) {                      
+   while (P != Objects.GetEndPosition()) {                      
 	
 		Obj=(pCPrimitive)Objects.GetNext(P);
 		
@@ -120,7 +120,7 @@ void CGroup::Rotate(vector R) {
 
 	POSITION P = Objects.GetHeadPosition();
 
-	while (P!=0) {                      
+   while (P != Objects.GetEndPosition()) {                      
 	
 		Obj=(pCPrimitive)Objects.GetNext(P);
 		

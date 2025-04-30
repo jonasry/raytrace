@@ -102,7 +102,7 @@ CVector CTrans::transPoint(CVector& v) const {
   for (int i=0; i<3; i++)
     tmp[i]=v[i];
 
-  for (i=0; i<3; i++) {
+  for (int i=0; i<3; i++) {
     v[i]=0.0;
     for (int j=0; j<3; j++) 
       v[i] += m_Trans(i,j)*tmp[j];
@@ -120,7 +120,7 @@ CVector CTrans::invTransPoint(CVector& v) const {
   for (int i=0; i<3; i++)
     tmp[i]=v[i];
 
-  for (i=0; i<3; i++) {
+  for (int i=0; i<3; i++) {
     v[i]=0.0;
     for (int j=0; j<3; j++) 
       v[i] += m_InvTrans(i,j)*tmp[j];
@@ -138,7 +138,7 @@ CVector CTrans::transDirection(CVector& v) const {
   for (int i=0; i<3; i++)
     tmp[i]=v[i];
 
-  for (i=0; i<3; i++) {
+  for (int i=0; i<3; i++) {
     v[i]=0.0;
     for (int j=0; j<3; j++) 
       v[i] += m_Trans(i,j)*tmp[j];
@@ -156,7 +156,7 @@ CVector CTrans::invTransDirection(CVector& v) const {
   for (int i=0; i<3; i++)
     tmp[i]=v[i];
 
-  for (i=0; i<3; i++) {
+  for (int i=0; i<3; i++) {
     v[i]=0.0;
     for (int j=0; j<3; j++) 
       v[i] += m_InvTrans(i,j)*tmp[j];

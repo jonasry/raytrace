@@ -11,7 +11,7 @@
 #include "optic.h"
 #include "mstorage.h"
 
-using namespace std;
+// using namespace std; // removed to avoid std::vector conflict
 
 class CStudio;
 

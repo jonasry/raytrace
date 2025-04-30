@@ -1,13 +1,19 @@
 //	Test application for ray lib
-#include "stdafx.h"
 #include "testapp.h"
-#include "stdio.h"
+#include <cstdio>
+#include <iostream>
+using namespace std;
 
 void Catcher(int *reglist) {
 
 //	cerr << '\n' << Cam->Line() << ' ' << Cam->Pixel();
 
 	*(reglist + 8) = 3;
+}
+
+// Main entry point
+int main(int argc, char* argv[]) {
+    return RTmain(argc, argv);
 }
 /*
 int matherr (struct exception* a) {
