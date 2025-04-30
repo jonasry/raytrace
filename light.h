@@ -17,6 +17,8 @@ public: // Constructors
 	CLight (const CColor& I) :
 		m_Intensity(I) {}
 
+	virtual ~CLight() = default;
+
 public: // Services
 
 	virtual CColor 	Illuminate(const CRay::DifferentialArea& dA, const CRay& V) const=0;

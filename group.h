@@ -8,13 +8,14 @@
 #define __GROUP_H__
 
 #include "prim2.h"
+#include "list2.h"
 
 class CGroup : public CPrimitive {
 
 // Constructor
 
 public:		CGroup(CPrimitive* B);
-			~CGroup();
+			virtual ~CGroup();
 protected:  CGroup(int F,CPrimitive* B);
 
 

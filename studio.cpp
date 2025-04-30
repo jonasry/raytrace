@@ -17,15 +17,12 @@ CStudio::CStudio(int depth)
 CStudio::~CStudio()
 {
     // Delete all lights
-    POSITION pos = Lights.GetHeadPosition();
-    while (pos != Lights.GetEndPosition()) {
-        CLight* light = static_cast<CLight*>(Lights.GetNext(pos));
-        delete light;
+    CSceneObject* obj;
+    while ((obj = Lights.RemoveTail()) != nullptr) {
+        delete static_cast<CLight*>(obj);
     }
     // Delete all textures
-    pos = Textures.GetHeadPosition();
-    while (pos != Textures.GetEndPosition()) {
-        CTexture* tex = static_cast<CTexture*>(Textures.GetNext(pos));
-        delete tex;
+    while ((obj = Textures.RemoveTail()) != nullptr) {
+        delete static_cast<CTexture*>(obj);
     }
 }

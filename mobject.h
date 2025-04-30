@@ -15,7 +15,10 @@
 //#include "stdafx.h"
 
 #include "list2.h"
-class CObject {};
+class CObject {
+public:
+    CObject() {}
+    virtual ~CObject() = default;
+};
 
-                  
 #endif                  

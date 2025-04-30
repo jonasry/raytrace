@@ -21,26 +21,32 @@ public:
     }
 
     // Get iterator to first element
-    POSITION GetHeadPosition() const {
-        return list_.cbegin();
-    }
+    POSITION GetHeadPosition() const { return list_.cbegin(); }
     // Get iterator to end (one past last element)
-    POSITION GetEndPosition() const {
-        return list_.cend();
-    }
-
+    POSITION GetEndPosition() const { return list_.cend(); }
     // Get next object and advance position
     CSceneObject* GetNext(POSITION& pos) const {
-        if (pos == list_.end()) return nullptr;
+        if (pos == list_.cend()) return nullptr;
         CSceneObject* tmp = *pos;
         ++pos;
         return tmp;
     }
-
     // Remove element at position
     void RemoveAt(POSITION pos) {
         list_.erase(pos);
     }
+    // Remove and return last element (or nullptr if empty)
+    CSceneObject* RemoveTail() {
+        if (list_.empty()) return nullptr;
+        CSceneObject* obj = list_.back();
+        list_.pop_back();
+        return obj;
+    }
+    // Clear all elements
+    void RemoveAll() {
+        list_.clear();
+    }
+
 
 private:
     std::list<CSceneObject*> list_;

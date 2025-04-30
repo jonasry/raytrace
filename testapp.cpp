@@ -1,8 +1,19 @@
 //	Test application for ray lib
 #include "testapp.h"
-#include <cstdio>
+#include <csignal>
+#include <execinfo.h>
+#include <unistd.h>    // for STDERR_FILENO
+#include <cstdlib>
 #include <iostream>
 using namespace std;
+
+// Signal handler to print stack trace on crash
+static void crashHandler(int sig) {
+    void* bt[20];
+    int n = backtrace(bt, 20);
+    backtrace_symbols_fd(bt, n, STDERR_FILENO);
+    exit(128 + sig);
+}
 
 void Catcher(int *reglist) {
 
@@ -13,6 +24,10 @@ void Catcher(int *reglist) {
 
 // Main entry point
 int main(int argc, char* argv[]) {
+    signal(SIGSEGV, crashHandler);
+    signal(SIGABRT, crashHandler);
+    signal(SIGFPE,  crashHandler);
+    signal(SIGTRAP, crashHandler);
     return RTmain(argc, argv);
 }
 /*

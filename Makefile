@@ -1,5 +1,5 @@
 CC = g++
-CXXFLAGS = -std=c++11 -Wall -I.
+CXXFLAGS = -std=c++11 -Wall -g -I.
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 TARGET = rt

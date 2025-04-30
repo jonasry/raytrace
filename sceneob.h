@@ -14,6 +14,7 @@ class CSceneObject : public CObject {
                   
 public:
 	CSceneObject(){}
+	virtual ~CSceneObject() = default;
 	
 public:
 	//	Transformations of 

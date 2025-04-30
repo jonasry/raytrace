@@ -16,7 +16,7 @@
 
 class CTexture;
 
-class CPrimitive : public CRTBase,public CWFBase,public CSceneObject {
+class CPrimitive : public CRTBase, public CWFBase, public CSceneObject {
 
 public:
 	enum ClassId {Plane=1, Sphere=2, Cone=3, Group=4, Intersec=5, Union=6, Box=7, Strange=0};
@@ -26,7 +26,7 @@ public:
 public:	// Constructors
 
 	CPrimitive(CTexture* theTexture, int FlipN, CPrimitive* theBound, ClassId C=Strange);
-	~CPrimitive() { delete m_BoundingObject; }
+	virtual ~CPrimitive() { delete m_BoundingObject; }
 
 
 public: // Services

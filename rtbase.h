@@ -16,6 +16,7 @@ class CRTBase {
 public: // constructor
 
 	CRTBase(){}
+	virtual ~CRTBase() = default;
 
 public: //Structures
 

@@ -15,6 +15,7 @@ class CWFBase {
 public: // constructor
 
 	CWFBase(){}
+	virtual ~CWFBase() = default;
 
 public: // Specific methods
 
