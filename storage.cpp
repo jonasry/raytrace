@@ -1,4 +1,4 @@
-#include "mstorage.h"
+#include "storage.h"
 #include "color.h"
 
 #if defined VERBOSE
