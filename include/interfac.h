@@ -3,7 +3,7 @@
 
 #include "studio.h"
 #include "camera.h"       
-#include "mobject.h"
+#include "object.h"
 
 class CInterface : public CObject {
 

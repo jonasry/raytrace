@@ -7,7 +7,7 @@
 #ifndef __SCENEOB_H__
 #define __SCENEOB_H__  
 
-#include "mobject.h"
+#include "object.h"
 #include "vector.h"
        
 class CSceneObject : public CObject {
