@@ -1,5 +1,5 @@
 /.vscode
 /build
+/output
 /*.tga
 /*.png
-codex.md
