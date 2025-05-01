@@ -60,9 +60,11 @@ int CCamera::Snap() {
 		cerr << '\r' << Sign[a++%4] << ' ' << (m_Line*100)/m_Frame.m_ScreenSize.Y << '%';
 #endif
 		ScanLine(m_Line);
-		m_Frame.StoreScanline();
+		m_Frame.StoreScanline(m_Line);
 
 	}
+
+	m_Frame.Close();
 
 #if defined VERBOSE
 	cerr << '\n' << "Time: " << difftime(time(NULL),StartTime);

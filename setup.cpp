@@ -3,7 +3,7 @@
 #define FILENAME "untitled.img"
 #define IMAGE    "image.img"
 #define RIGHT	 "right.img"
-#define LEFT	 "left.tga"
+#define LEFT	 "left.png"
 
 #define CENTER(x,y,z) 	CVector(x,y,z)
 #define NORMAL(x,y,z) 	CVector(x,y,z)
@@ -224,7 +224,7 @@ void SetupCameras(CObList& Cameras, CStudio& Studio, int xres, int yres) {
 
 //	CVector LeftPos(CamPos);
 
-	Cameras.AddTail(new CCamera(COptic(CLine(FocusAt-LeftPos,LeftPos),Up,40.0/2.0,40.0/2.0),&Studio,LEFT,CStorage::TGA,xres,yres));
+	Cameras.AddTail(new CCamera(COptic(CLine(FocusAt-LeftPos,LeftPos),Up,40.0/2.0,40.0/2.0),&Studio,LEFT,CStorage::PNG,xres,yres));
 /*
 	Cameras.AddTail(new CCamera(
 							COptic(

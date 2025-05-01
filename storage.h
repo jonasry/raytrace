@@ -21,28 +21,20 @@ class CStorage {
 
 public:	//	Constants
 
-	enum ImgClass { IMG = 1, TGA = 2, RAW = 3, RLE = 4 };
-
+	enum ImgClass { PNG = 1, TGA = 2, HDR = 3, JPG = 4 };
 
 public:	// 	Constructors
 
 	CStorage(char* FileName, ImgClass FileType,
 			 scoord X_Resolution, scoord Y_Resolution);
-
 	~CStorage();
-
-
 
 public:	// 	Services
 
-	scoord StoreScanline(CColor* Scanline);
-	scoord StoreScanline() { return StoreScanline(m_ScanBuffer); }
+	scoord StoreScanline(scoord lineNo, CColor* Scanline);
+	scoord StoreScanline(scoord lineNo) { return StoreScanline(lineNo, m_ScanBuffer); }
 
-	int operator<<(CColor* Scanline);
-	
-	void close() { Store.close(); }
-
-
+	void Close();
 
 public:
 	//	Picture dimensions:
@@ -54,29 +46,19 @@ public:
 	} m_ScreenSize;
 
 	CColor* m_ScanBuffer;
-	BYTE*	m_ScanLine;
-
-
 
 private:// Data
 
+	const char* FileName;
 	const ImgClass IC;
-	ofstream Store;
-
+	BYTE* m_ScanLineBuffer;
 
 private:// Methods for storing
 
 	int StoreTGA();
-	int	StoreIMG();
-	int StoreRAW();
-	int	StoreRLE();
-
-	int SetupTGA();
-	int	SetupIMG();
-	int SetupRAW();
-	int	SetupRLE();
-
-
+	int	StorePNG();
+	int StoreHDR();
+	int	StoreJPG();
 };
 
 #endif
