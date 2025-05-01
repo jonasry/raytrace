@@ -23,7 +23,7 @@ Usage:
 - `resolution`: optional integer; if provided, the output image will be `resolution`×`resolution` pixels.
   If omitted, defaults to 200×160.
 
-The program writes its output to `left.tga` in the current directory.
+The program writes its output to `left.png` in the current directory.
 
 ## Cleaning
 To remove built artifacts, run:
