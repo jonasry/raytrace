@@ -14,7 +14,7 @@ CBox::CBox(vector Max, vector Min, CTexture* T, CPrimitive* B, int F):
 
 CRTBase::Intersection CBox::Intersect(CRay& Ray) const {
                        
- 	register int i;                   
+	int i;
 	int inside = 1;
 	int quadrant[3];
 	int whichPlane;

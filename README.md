@@ -1,11 +1,11 @@
 # Ray Tracer Application
 
-This is a simple, portable ray tracing engine written in C++11. It renders a scene to an image file.
+This is a simple, portable ray tracing engine written in C++17. It renders a scene to an image file.
 
 ## Prerequisites
 - A Unix-like system (Linux, macOS)
 - GNU Make
-- g++ (with C++11 support)
+- g++ (with C++17 support)
 
 ## Building
 1. Clone or download this repository.
