@@ -2,6 +2,13 @@
 
 This is a simple, portable ray tracing engine written in C++17. It renders a scene to an image file.
 
+# Structure
+
+    include/  contains header files (.h)
+    src/      contains implementation files (.cpp)
+    libs/     contains external libraries used by the application
+    examples/ contains example files, not used by the application
+
 ## Prerequisites
 - A Unix-like system (Linux, macOS)
 - GNU Make
