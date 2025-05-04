@@ -2,6 +2,9 @@
 #include "stb_image_write.h"
 #include "storage.h"
 #include "color.h"
+#include <cstdlib>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #if defined VERBOSE
 	#include <iostream.h>
@@ -13,7 +16,14 @@ CStorage::CStorage(char* FileName, ImgClass FileType,
 		 	IC(FileType),
 		 	m_ScreenSize(CSize(X_Resolution, Y_Resolution))
 {
-	m_ScanBuffer=new CColor[X_Resolution];
+	const char* outputDir = std::getenv("RT_OUTPUT");
+	std::string directory = outputDir ? outputDir : "output";
+	fs::create_directories(directory);
+	
+	std::string fullPath = directory + "/" + FileName;
+	this->FileName = strdup(fullPath.c_str());
+	
+	m_ScanBuffer = new CColor[X_Resolution];
 	m_ScanLineBuffer = new BYTE[X_Resolution * Y_Resolution * 3];
 
 	#if defined VERBOSE
