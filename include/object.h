@@ -7,14 +7,8 @@
 #ifndef __OBJECT_H__
 #define __OBJECT_H__
                    
-//#pragma message("OBJECT.H")                   
-
-
-//#include <afx.h> 
-//#include <afxcoll.h>
-//#include "stdafx.h"
-
 #include "list2.h"
+
 class CObject {
 public:
     CObject() {}
