@@ -3,6 +3,7 @@
 #define __STUDIO_H__
 
 #include <vector>
+#include <memory>
 #include "group.h"
 
 class CLight;
@@ -14,8 +15,8 @@ public:
     CStudio(int depth = 5);
     ~CStudio();
 
-    std::vector<CLight*> Lights;
-    std::vector<CTexture*> Textures;
+    std::vector<std::unique_ptr<CLight>> Lights;
+    std::vector<std::unique_ptr<CTexture>> Textures;
     CGroup Objects;
     int RecurseDepth;
 };

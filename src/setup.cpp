@@ -44,24 +44,39 @@ void SetupTextures(CStudio& Studio) {
 	//	Make definitions for textures needed
 	//	------------------------------------
 
-	WHITE = new CTexture(White);			Studio.Textures.push_back(WHITE);
-	BLUE  = new CTexture(Blue);				Studio.Textures.push_back(BLUE);
-	GREEN = new CTexture(Green);			Studio.Textures.push_back(GREEN);
-	RED   = new CTexture(Red);				Studio.Textures.push_back(RED);
-	BLACK = new CTexture(Black);			Studio.Textures.push_back(BLACK);
+	Studio.Textures.emplace_back(new CTexture(White));
+	WHITE = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTexture(Blue));
+	BLUE = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTexture(Green));
+	GREEN = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTexture(Red));
+	RED = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTexture(Black));
+	BLACK = Studio.Textures.back().get();
 
-	Tex5  = new CTexture(Black,CColor(Gr,Gg,Gb),.1,.6,Gg);	Studio.Textures.push_back(Tex5);
-	Tex6  = new CTexture(Black,CColor(Fr,Fg,Fb),.1,.6,Fg);	Studio.Textures.push_back(Tex6);
-	Tex7  = new CTexture(Black,CColor(Fr,Fg,Fb),.05,.6,Fg);	Studio.Textures.push_back(Tex7);           
+	Studio.Textures.emplace_back(new CTexture(Black,CColor(Gr,Gg,Gb),.1,.6,Gg));
+	Tex5 = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTexture(Black,CColor(Fr,Fg,Fb),.1,.6,Fg));
+	Tex6 = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTexture(Black,CColor(Fr,Fg,Fb),.05,.6,Fg));
+	Tex7 = Studio.Textures.back().get();
 
-	Tex8  = new CChecker(WHITE,BLUE,2,2,2); Studio.Textures.push_back(Tex8);
+	Studio.Textures.emplace_back(new CChecker(WHITE,BLUE,2,2,2));
+	Tex8 = Studio.Textures.back().get();
 
-	Tex9  = new CNoise(WHITE,BLACK,.3);		Studio.Textures.push_back(Tex9);
-	Tex10 = new CTurbulence(WHITE,RED,.2);	Studio.Textures.push_back(Tex10);
-	Tex11 = new CMarble(Tex10,Tex7,0.25);	Studio.Textures.push_back(Tex11);
-	Tex12 = new CTurbulence(BLUE,BLACK,.5);	Studio.Textures.push_back(Tex12);
-	Tex13 = new CTurbulence(WHITE,BLACK,.5);Studio.Textures.push_back(Tex13);
-	Tex14 = new CTurbulence(WHITE,Tex5,.5); Studio.Textures.push_back(Tex14);
+	Studio.Textures.emplace_back(new CNoise(WHITE,BLACK,.3));
+	Tex9 = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTurbulence(WHITE,RED,.2));
+	Tex10 = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CMarble(Tex10,Tex7,0.25));
+	Tex11 = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTurbulence(BLUE,BLACK,.5));
+	Tex12 = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTurbulence(WHITE,BLACK,.5));
+	Tex13 = Studio.Textures.back().get();
+	Studio.Textures.emplace_back(new CTurbulence(WHITE,Tex5,.5));
+	Tex14 = Studio.Textures.back().get();
 
 }
 
@@ -70,10 +85,10 @@ void SetupLights(CStudio& Studio) {
 	//	Define lights
 	//	-------------
 
-	Studio.Lights.push_back(new CPointLight(CVector(5,10,20),White*0.15));
-	Studio.Lights.push_back(new CPointLight(CVector(-10,-5,20),White*0.12));
-	Studio.Lights.push_back(new CPointLight(CVector(7,-5,20),White*0.15));
-	Studio.Lights.push_back(new CAmbientLight(CColor(2,2*0.96,2*0.87)*0.15));
+	Studio.Lights.emplace_back(new CPointLight(CVector(5,10,20),White*0.15));
+	Studio.Lights.emplace_back(new CPointLight(CVector(-10,-5,20),White*0.12));
+	Studio.Lights.emplace_back(new CPointLight(CVector(7,-5,20),White*0.15));
+	Studio.Lights.emplace_back(new CAmbientLight(CColor(2,2*0.96,2*0.87)*0.15));
 
 }
 
@@ -213,7 +228,7 @@ void SetupObjects(CStudio& Studio) {
 */	
 }
 
-void SetupCameras(std::vector<CCamera*>& Cameras, CStudio& Studio, int xres, int yres) {
+void SetupCameras(std::vector<std::unique_ptr<CCamera>>& Cameras, CStudio& Studio, int xres, int yres) {
 
 	CVector CamPos(3,-10,6);
 	CVector FocusAt(0,-2,4);
@@ -224,7 +239,7 @@ void SetupCameras(std::vector<CCamera*>& Cameras, CStudio& Studio, int xres, int
 
 //	CVector LeftPos(CamPos);
 
-	Cameras.push_back(new CCamera(COptic(CLine(FocusAt-LeftPos,LeftPos),Up,40.0/2.0,40.0/2.0),&Studio,LEFT,CStorage::PNG,xres,yres));
+	Cameras.emplace_back(new CCamera(COptic(CLine(FocusAt-LeftPos,LeftPos),Up,40.0/2.0,40.0/2.0),&Studio,LEFT,CStorage::PNG,xres,yres));
 /*
 	Cameras.push_back(new CCamera(
 							COptic(

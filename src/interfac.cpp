@@ -3,19 +3,11 @@
 #include "interfac.h"
 
 CInterface::~CInterface() {
-
-    // Delete all cameras
-    for (auto* cam : Cameras) {
-        delete cam;
-    }
-    Cameras.clear();
-
+    // no-op: unique_ptr in Cameras will handle destruction
 }
 
 void CInterface::SnapAll() {
-
-    for (auto* Cam : Cameras) {
+    for (auto& Cam : Cameras) {
         Cam->Snap();
     }
-
 }

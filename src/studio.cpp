@@ -16,14 +16,5 @@ CStudio::CStudio(int depth)
 // Destructor deletes allocated lights and textures; scene objects are managed by CGroup
 CStudio::~CStudio()
 {
-    // Delete all lights
-    for (auto* light : Lights) {
-        delete light;
-    }
-    Lights.clear();
-    // Delete all textures
-    for (auto* tex : Textures) {
-        delete tex;
-    }
-    Textures.clear();
+    // no-op: unique_ptr in Lights and Textures will handle destruction
 }

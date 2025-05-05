@@ -48,7 +48,8 @@ CColor CRay::Sample(const CStudio* Studio, unsigned RecurseLevel) {
 
 	//	Add direct illumination:
     // Add direct illumination from each light
-    for (auto* L : Studio->Lights) {
+    for (const auto& lightPtr : Studio->Lights) {
+        const CLight* L = lightPtr.get();
         if (!Shaded(m_dA, Studio, L)) {
             vector v = L->Loc() - m_dA.Loc;
             double a = exp(-v.NormOf() / 20.0); // Attenuation (TEMPORARY)

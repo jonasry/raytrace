@@ -4,6 +4,7 @@
 #include "studio.h"
 #include "camera.h"
 #include <vector>
+#include <memory>
 #include "object.h"
 
 class CInterface : public CObject {
@@ -20,7 +21,7 @@ public:
 public:
 
     CStudio Studio;
-    std::vector<CCamera*> Cameras;
+    std::vector<std::unique_ptr<CCamera>> Cameras;
 
 
 };
