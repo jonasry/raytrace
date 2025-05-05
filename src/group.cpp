@@ -6,47 +6,30 @@ CGroup::CGroup(int F,CPrimitive* B) : CPrimitive(0,F,B,Group) {}
 CGroup::CGroup(CPrimitive* B) : CPrimitive(0,0,B,Group) {}
 
 CGroup::~CGroup() {
- 
-	POSITION T1, T2;
-	pCPrimitive obj;
-	T1 = Objects.GetHeadPosition();
-    
-    while (T1 != Objects.GetEndPosition()) {
-    	T2 = T1;
-		obj = (pCPrimitive) Objects.GetNext(T1);
-		Objects.RemoveAt(T2);
-		delete obj;
-	}
-}    
+    // Delete all child primitives and clear the container
+    for (auto* obj : Objects) {
+        delete obj;
+    }
+    Objects.clear();
+}
 
 CRTBase::Intersection CGroup::Intersect(CRay& Ray) const {
 
 	Intersection I;
 	Intersection Nearest;
-	CPrimitive* Obj;
 
 	//	Check intersection agains bounding object:
 
 	if (!IntersectBound(Ray)) return Intersection(0);
 
-	//	Ok - Now check out intersection with all members of group
-	//	and return the nearest intersection.
-
-	POSITION T = Objects.GetHeadPosition();
-
-    while (T != Objects.GetEndPosition()) { 
-	
-        Obj=(CPrimitive *)Objects.GetNext(T);
-        
-		I = Obj->Intersect(Ray);
-
-		if (I.IntersectedPrimitive!=0)
-			if ((I.Distance<Nearest.Distance)&&(I.Distance>m_eps)) {
-				Nearest = I;
-				Nearest.IntersectedObject = Obj;
-			}
-
-	}
+    // Check intersection with all members of the group and return the nearest
+    for (auto* Obj : Objects) {
+        I = Obj->Intersect(Ray);
+        if (I.IntersectedPrimitive != nullptr && I.Distance < Nearest.Distance && I.Distance > m_eps) {
+            Nearest = I;
+            Nearest.IntersectedObject = Obj;
+        }
+    }
 
 	return Nearest;
 
@@ -63,17 +46,12 @@ int CGroup::Inside(const vector& Point, const CPrimitive* C) const {
 
 	//	A Group in it self can not flip inside with outside.
 
-	pCPrimitive Obj;
 
-	POSITION T = Objects.GetHeadPosition();
-
-	while (T != Objects.GetEndPosition()) {                      
-	
-		Obj=(pCPrimitive)Objects.GetNext(T);
-		
-		if (Obj==C) continue;
-		if(Obj->Inside(Point,0)) return TRUE;
-	}
+    // Check if any member contains the point (excluding C)
+    for (auto* Obj : Objects) {
+        if (Obj == C) continue;
+        if (Obj->Inside(Point, nullptr)) return TRUE;
+    }
 
 	return FALSE;
 
@@ -81,51 +59,24 @@ int CGroup::Inside(const vector& Point, const CPrimitive* C) const {
                                  
 
 void CGroup::Translate(vector T) {
- 
-	pCPrimitive Obj;
-
-	POSITION P = Objects.GetHeadPosition();
-
-	while (P != Objects.GetEndPosition()) {                      
-	
-		Obj=(pCPrimitive)Objects.GetNext(P);
-		
-		Obj->Translate(T);
-
-	}
-
+    // Translate all child primitives
+    for (auto* Obj : Objects) {
+        Obj->Translate(T);
+    }
 }
 
 
 void CGroup::Scale(vector S) {
- 
-	pCPrimitive Obj;
-
-	POSITION P = Objects.GetHeadPosition();
-
-   while (P != Objects.GetEndPosition()) {                      
-	
-		Obj=(pCPrimitive)Objects.GetNext(P);
-		
-		Obj->Scale(S);
-
-	}
-
+    // Scale all child primitives
+    for (auto* Obj : Objects) {
+        Obj->Scale(S);
+    }
 }
 
 
 void CGroup::Rotate(vector R) {
- 
-	pCPrimitive Obj;
-
-	POSITION P = Objects.GetHeadPosition();
-
-   while (P != Objects.GetEndPosition()) {                      
-	
-		Obj=(pCPrimitive)Objects.GetNext(P);
-		
-		Obj->Rotate(R);
-
-	}
-
+    // Rotate all child primitives
+    for (auto* Obj : Objects) {
+        Obj->Rotate(R);
+    }
 }

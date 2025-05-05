@@ -2,7 +2,7 @@
 #ifndef __STUDIO_H__
 #define __STUDIO_H__
 
-#include "list2.h"
+#include <vector>
 #include "group.h"
 
 class CLight;
@@ -14,8 +14,8 @@ public:
     CStudio(int depth = 5);
     ~CStudio();
 
-    CObList Lights;
-    CObList Textures;
+    std::vector<CLight*> Lights;
+    std::vector<CTexture*> Textures;
     CGroup Objects;
     int RecurseDepth;
 };

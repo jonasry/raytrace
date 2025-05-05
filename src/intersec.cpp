@@ -39,18 +39,14 @@ int CIntersection::Inside(const vector& Point, const CPrimitive* C) const {
 	//	surface. This object is discarded during the test, because it is
 	//	not clear if Point belongs to C or not.
 
-	CPrimitive* Obj;
-
-	POSITION T = Objects.GetHeadPosition();
-
-    while (T != Objects.GetEndPosition()) {
-		Obj=(pCPrimitive) Objects.GetNext(T);
-		if (Obj==C) continue;
-		if (!Obj->Inside(Point,0))
-			return FALSE^m_FlipInside;
-	}
-
-	return TRUE^m_FlipInside;
+    // Check that the point is inside all members of the intersection (excluding C)
+    for (auto* Obj : Objects) {
+        if (Obj == C) continue;
+        if (!Obj->Inside(Point, nullptr)) {
+            return FALSE ^ m_FlipInside;
+        }
+    }
+    return TRUE ^ m_FlipInside;
 
 
 }

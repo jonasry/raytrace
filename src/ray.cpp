@@ -47,19 +47,14 @@ CColor CRay::Sample(const CStudio* Studio, unsigned RecurseLevel) {
 
 
 	//	Add direct illumination:
-
-    POSITION T = Studio->Lights.GetHeadPosition();
-    CLight* L;
-    
-    // Iterate through all lights
-    while (T != Studio->Lights.GetEndPosition()) {
-		L = (CLight *)Studio->Lights.GetNext(T);
-		if (!Shaded(m_dA,Studio,L)) {
-			vector v=L->Loc()-m_dA.Loc;
-			double a = exp(-(v.NormOf())/20); // Attunation (TEMPORARY)
-			Intensity+=L->Illuminate(m_dA,*this)*a;
-		}
-	}
+    // Add direct illumination from each light
+    for (auto* L : Studio->Lights) {
+        if (!Shaded(m_dA, Studio, L)) {
+            vector v = L->Loc() - m_dA.Loc;
+            double a = exp(-v.NormOf() / 20.0); // Attenuation (TEMPORARY)
+            Intensity += L->Illuminate(m_dA, *this) * a;
+        }
+    }
 
 
 
@@ -94,7 +89,7 @@ int Shaded(CRay::DifferentialArea dA, const CStudio* S, const CLight* L) {
 
 	CRay R(v,dA.Loc);
 
-	CRTBase::Intersection I = S->Objects.Intersect(R);
+    CRTBase::Intersection I = S->Objects.Intersect(R);
 
 	if (I.IntersectedPrimitive==0) return 0;
 

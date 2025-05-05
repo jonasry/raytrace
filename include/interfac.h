@@ -2,7 +2,8 @@
 #define __INTERFACE_H__
 
 #include "studio.h"
-#include "camera.h"       
+#include "camera.h"
+#include <vector>
 #include "object.h"
 
 class CInterface : public CObject {
@@ -18,8 +19,8 @@ public:
 
 public:
 
-	CStudio Studio;
-	CObList Cameras;
+    CStudio Studio;
+    std::vector<CCamera*> Cameras;
 
 
 };

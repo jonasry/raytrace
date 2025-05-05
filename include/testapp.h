@@ -1,6 +1,7 @@
 #ifndef __TESTAPP_H__
 #define __TESTAPP_H__
 #include "rtlib.h"
+#include <vector>
 
 #define VER 0.9
 
@@ -14,7 +15,7 @@ void SetupTextures(CStudio& Studio);
 void SetupLights(CStudio& Studio);
 void SetupObjects(CStudio& Studio);
 void SetupStudio(CStudio& Studio);
-void SetupCameras(CObList& Cameras, CStudio& Studio, int xres, int yres);
+void SetupCameras(std::vector<CCamera*>& Cameras, CStudio& Studio, int xres, int yres);
 // Main raytracing entry point
 int RTmain(int argc, char* argv[]);
 

@@ -7,8 +7,6 @@
 #ifndef __OBJECT_H__
 #define __OBJECT_H__
                    
-#include "list2.h"
-
 class CObject {
 public:
     CObject() {}

@@ -4,28 +4,18 @@
 
 CInterface::~CInterface() {
 
-	POSITION T1, T2;
-	CObject* obj;
-
-	T1 = Cameras.GetHeadPosition();
-    
-    while (T1 != Cameras.GetEndPosition()) {
-    	T2 	= T1;
-		obj = Cameras.GetNext(T1);
-		Cameras.RemoveAt(T2);
-		delete (CCamera *) obj;
-	}
+    // Delete all cameras
+    for (auto* cam : Cameras) {
+        delete cam;
+    }
+    Cameras.clear();
 
 }
 
 void CInterface::SnapAll() {
 
-	CCamera* Cam;
-	POSITION C = Cameras.GetHeadPosition();
-
-    while (C != Cameras.GetEndPosition()) {
-		Cam=(CCamera *) Cameras.GetNext(C);
-		Cam->Snap();
-	}
+    for (auto* Cam : Cameras) {
+        Cam->Snap();
+    }
 
 }

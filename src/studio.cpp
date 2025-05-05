@@ -17,12 +17,13 @@ CStudio::CStudio(int depth)
 CStudio::~CStudio()
 {
     // Delete all lights
-    CSceneObject* obj;
-    while ((obj = Lights.RemoveTail()) != nullptr) {
-        delete static_cast<CLight*>(obj);
+    for (auto* light : Lights) {
+        delete light;
     }
+    Lights.clear();
     // Delete all textures
-    while ((obj = Textures.RemoveTail()) != nullptr) {
-        delete static_cast<CTexture*>(obj);
+    for (auto* tex : Textures) {
+        delete tex;
     }
+    Textures.clear();
 }

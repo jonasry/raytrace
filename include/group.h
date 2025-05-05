@@ -8,7 +8,7 @@
 #define __GROUP_H__
 
 #include "prim2.h"
-#include "list2.h"
+#include <vector>
 
 class CGroup : public CPrimitive {
 
@@ -33,8 +33,8 @@ public: // Services
 
 
 public: // Data
-
-	CObList Objects;
+    // Container of child primitives
+    std::vector<pCPrimitive> Objects;
 
 
 };
