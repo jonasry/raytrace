@@ -6,6 +6,7 @@
 
 #ifndef __PRIM_H__
 #define __PRIM_H__
+#include <memory>
 
 //#pragma message("PRIM.H")
 
@@ -26,7 +27,7 @@ public:
 public:	// Constructors
 
 	CPrimitive(CTexture* theTexture, int FlipN, CPrimitive* theBound, ClassId C=Strange);
-	virtual ~CPrimitive() { delete m_BoundingObject; }
+    virtual ~CPrimitive() = default;
 
 
 public: // Services
@@ -52,7 +53,7 @@ protected:
 
 private:// Data
 
-	CPrimitive* 	m_BoundingObject;
+    std::unique_ptr<CPrimitive> m_BoundingObject;
 	CTexture*		m_TextureObject;
 	
 

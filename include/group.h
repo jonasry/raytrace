@@ -9,6 +9,7 @@
 
 #include "prim2.h"
 #include <vector>
+#include <memory>
 
 class CGroup : public CPrimitive {
 

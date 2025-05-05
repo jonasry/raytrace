@@ -26,23 +26,9 @@ void FHelper(double &r, double &g, double &b) {
 }
 
 void SetupTextures(CStudio& Studio) {
-
-	double 	Fr=0.55, 
-			Fg=0.75, 
-			Fb=0.70;
-
-	FHelper(Fr, Fg, Fb);
-
 	
-	double	Gr=0.80, 
-			Gg=0.40, 
-			Gb=0.20;
-
-	FHelper(Gr, Gg, Gb);
-
-	
-	//	Make definitions for textures needed
-	//	------------------------------------
+	//	Define textures
+	//	---------------
 
 	Studio.Textures.emplace_back(new CTexture(White));
 	WHITE = Studio.Textures.back().get();
@@ -54,30 +40,6 @@ void SetupTextures(CStudio& Studio) {
 	RED = Studio.Textures.back().get();
 	Studio.Textures.emplace_back(new CTexture(Black));
 	BLACK = Studio.Textures.back().get();
-
-	Studio.Textures.emplace_back(new CTexture(Black,CColor(Gr,Gg,Gb),.1,.6,Gg));
-	Tex5 = Studio.Textures.back().get();
-	Studio.Textures.emplace_back(new CTexture(Black,CColor(Fr,Fg,Fb),.1,.6,Fg));
-	Tex6 = Studio.Textures.back().get();
-	Studio.Textures.emplace_back(new CTexture(Black,CColor(Fr,Fg,Fb),.05,.6,Fg));
-	Tex7 = Studio.Textures.back().get();
-
-	Studio.Textures.emplace_back(new CChecker(WHITE,BLUE,2,2,2));
-	Tex8 = Studio.Textures.back().get();
-
-	Studio.Textures.emplace_back(new CNoise(WHITE,BLACK,.3));
-	Tex9 = Studio.Textures.back().get();
-	Studio.Textures.emplace_back(new CTurbulence(WHITE,RED,.2));
-	Tex10 = Studio.Textures.back().get();
-	Studio.Textures.emplace_back(new CMarble(Tex10,Tex7,0.25));
-	Tex11 = Studio.Textures.back().get();
-	Studio.Textures.emplace_back(new CTurbulence(BLUE,BLACK,.5));
-	Tex12 = Studio.Textures.back().get();
-	Studio.Textures.emplace_back(new CTurbulence(WHITE,BLACK,.5));
-	Tex13 = Studio.Textures.back().get();
-	Studio.Textures.emplace_back(new CTurbulence(WHITE,Tex5,.5));
-	Tex14 = Studio.Textures.back().get();
-
 }
 
 void SetupLights(CStudio& Studio) {
@@ -89,147 +51,27 @@ void SetupLights(CStudio& Studio) {
 	Studio.Lights.emplace_back(new CPointLight(CVector(-10,-5,20),White*0.12));
 	Studio.Lights.emplace_back(new CPointLight(CVector(7,-5,20),White*0.15));
 	Studio.Lights.emplace_back(new CAmbientLight(CColor(2,2*0.96,2*0.87)*0.15));
-
 }
 
 void SetupObjects(CStudio& Studio) {
 
-		const int Flip = CPrimitive::Invert;
-		const int NoFlip = CPrimitive::NonInvert;
-
 	//	Define Objects
-	//	--------------
-/*
-	Studio.Objects.Objects.push_back(new CPlane(CVector(0,0,0.01),CVector(0,0,1),Tex8,0,0));
+	//	--------------	
 
-	Studio.Objects.Objects.push_back(new CSphere(0.50,CVector( 1,-3.0, 2),RED,   0,0));
-	Studio.Objects.Objects.push_back(new CSphere(0.50,CVector( 1, 2.5, 3),GREEN, 0,0));
-	Studio.Objects.Objects.push_back(new CSphere(0.50,CVector(-2,-2.5, 2),WHITE, 0,0));
-	Studio.Objects.Objects.push_back(new CSphere(1.25,CVector( 0, 4.0, 3),BLUE,  0,0));
-	
-	Studio.Objects.Objects.push_back(new CBox(CVector(-5,0,0), CVector(-4,20,5), WHITE,0,0));
-	
-	CCone* C = new CCone(CVector(1,3,2), CVector( 0, 4.0, 3),.5,BLUE,  0,0);
-	                                
-	C->Translate(CVector(1,1,1));
-	                                
-	Studio.Objects.Objects.push_back(C);
-*/	
-/*                                   
-	CSphere* S1 = new CSphere(1,CVector(0,0,0),RED ,0,0);
-	CSphere* S2 = new CSphere(1,CVector(0,0,0),BLUE,0,0);
-			             
-	S2->Translate(CVector(0,0,0.5));
-	S2->SetInside(Flip);
-		             
-	CIntersection* I = new CIntersection(0,0);
-	I->Objects.Add(S1);
-	I->Objects.Add(S2);          
-	
-	I->Rotate(CVector(.2,.1,.3));
-	
-	I->Translate(CVector(0,0,3));
-
-	Studio.Objects.Objects.push_back(I);
-*/	
-//	Studio.Objects.Objects.push_back(S1);	
-//	Studio.Objects.Objects.push_back(S2);
-	
-
-	CBox* B = new CBox(CVector(1,1,1),CVector(0,0,0),RED,0,0);                                   
-	B->Translate(CVector(-.5,-.5,0));
-	B->Rotate(CVector(0,0,.1745));
-	B->Scale(CVector(1,1,2));            
-	B->Translate(CVector(0,5,0));
-	Studio.Objects.Objects.push_back(B);
-
-	CBox* B1 = new CBox(CVector(1,1,1),CVector(0,0,0),Tex14,0,0);
-	B1->Translate(CVector(-.5,-.5,0));
-	B1->Rotate(CVector(0,0,.22));
-	B1->Scale(CVector(1,1,2));
-	B1->Translate(CVector(-3,5,0));
-	Studio.Objects.Objects.push_back(B1);
-
-	CBox* B2 = new CBox(CVector(1,1,1),CVector(0,0,0),Tex13,0,0);
-	B2->Translate(CVector(-.5,-.5,0));
-	B2->Rotate(CVector(0,.15,.10));
-	B2->Scale(CVector(1,1,2));
-	B2->Translate(CVector(-3,7,1));
-	Studio.Objects.Objects.push_back(B2);
-
-	CBox* B3 = new CBox(CVector(1,1,1),CVector(0,0,0),Tex10,0,0);
-	B3->Translate(CVector(-.5,-.5,0));
-	B3->Rotate(CVector(.20,0,.33));
-	B3->Scale(CVector(1,1,2));
-	B3->Translate(CVector(-3,3,2));
-	Studio.Objects.Objects.push_back(B3);
+    CBox* B = new CBox(CVector(1,1,1), CVector(0,0,0), RED, nullptr, 0);
+    B->Translate(CVector(-.5,-.5,0));
+    B->Rotate(CVector(0,0,.1745));
+    B->Scale(CVector(1,1,2));
+    B->Translate(CVector(0,5,0));
+    Studio.Objects.Objects.push_back(B);
                                    
-	CCone* C = new CCone(CLine(CVector(0,1,0)),1.0,Tex11,0,1);
-//	C->Rotate(CVector(0,0,.20));
-//	C->Translate(CVector(-3,3,1.2));
-//	Studio.Objects.Objects.push_back(C);
-                                   
-	CPlane* P = new CPlane(CVector(0,0,0.01),CVector(0,0,1),Tex8,0,0);
-	P->Translate(CVector(0,0,0));
-	P->Rotate(CVector(0,0,0.3491)); 
-	Studio.Objects.Objects.push_back(P);
-
-
-	CIntersection* I = new CIntersection(0,0);
-	I->Objects.push_back(new CSphere(2.0,CVector( 0, 1, 0),Tex6, 0,0));
-	I->Objects.push_back(C);
-
-	Studio.Objects.Objects.push_back(new CSphere(2.0,CVector( -5, 4, 3),Tex5, 0,0));
-
-	CSphere* S1=new CSphere(1.0,CVector( 0, 0, 0),Tex5, 0,0);
-	S1->Translate(CVector(0,4,4));
-	Studio.Objects.Objects.push_back(S1);
-
-	CSphere* S2=new CSphere(1.0,CVector( 0, 0, 0),Tex7, 0,0);
-	S2->Translate(CVector(0,4,2));
-	S2->Rotate(CVector(0,0,0.3));
-	Studio.Objects.Objects.push_back(S2);
-
-	CSphere* S3=new CSphere(1.0,CVector( 0, 0, 0),Tex6, 0,0);
-	S3->Translate(CVector(0,4,2));
-	S3->Rotate(CVector(0.2,0.3,0));
-	Studio.Objects.Objects.push_back(S3);
-
-	CGroup*	g = new CGroup(0); Studio.Objects.Objects.push_back(g);
-
-	for (int x=0; x<24; x++) {
-		double u = 2.0 * 3.141542 * x / 24.0;
-		CSphere* S4=new CSphere(0.5,CVector( 0, 0, 0),Tex6, 0,0);
-		S4->Translate(CVector(0,2,(sin(4*u)+1)/4.0 +.5));
-		S4->Rotate(CVector(0,0,u));
-		g->Objects.push_back(S4);
-	}
-
-	g->Translate(CVector(0,0,0));
-
-//	CSphere* S4=new CSphere(0.5,CVector( 0, 0, 0),Tex6, 0,0);
-//	S4->Translate(CVector(0,4,2));
-//	S4->Rotate(CVector(0.2,0.3,0));
-//	Studio.Objects.Objects.push_back(S4);
-
-
-/*
-	Studio.Objects.Objects.push_back(new CSphere(2.0,CVector( 0, 0, 2),Tex6, 0,0));
-
-	Studio.Objects.Objects.push_back(new CSphere(1.0,CVector(-3, 0, 2),GREEN,0,0));
-	Studio.Objects.Objects.push_back(new CSphere(1.0,CVector( 3, 0, 2),WHITE,0,0));
-	Studio.Objects.Objects.push_back(new CSphere(1.0,CVector( 0,-3, 2),WHITE,0,0));
-	Studio.Objects.Objects.push_back(new CSphere(1.0,CVector( 0, 3, 2),WHITE,0,0));
-
-	Studio.Objects.Objects.push_back(new CSphere(0.6,CVector(-3, 3, 2),RED,  0,0));
-	Studio.Objects.Objects.push_back(new CSphere(0.6,CVector( 3, 3, 2),BLUE, 0,0));
-	Studio.Objects.Objects.push_back(new CSphere(0.6,CVector( 3,-3, 2),GREEN,0,0));
-	Studio.Objects.Objects.push_back(new CSphere(0.6,CVector(-3,-3, 2),WHITE,0,0));
-*/	
+    CPlane* P = new CPlane(CVector(0,0,0.01), CVector(0,0,1), GREEN, nullptr, 0);
+    P->Translate(CVector(0,0,0));
+    P->Rotate(CVector(0,0,0.3491));
+    Studio.Objects.Objects.push_back(P);
 }
 
 void SetupCameras(std::vector<std::unique_ptr<CCamera>>& Cameras, CStudio& Studio, int xres, int yres) {
-
 	CVector CamPos(3,-10,6);
 	CVector FocusAt(0,-2,4);
 	CVector Up(0,0,1);
@@ -237,28 +79,11 @@ void SetupCameras(std::vector<std::unique_ptr<CCamera>>& Cameras, CStudio& Studi
 	CVector LeftPos (CamPos-!CrossProduct(Up,CamPos-FocusAt)*.3);
 	CVector RightPos(CamPos+!CrossProduct(Up,CamPos-FocusAt)*.3);
 
-//	CVector LeftPos(CamPos);
-
 	Cameras.emplace_back(new CCamera(COptic(CLine(FocusAt-LeftPos,LeftPos),Up,40.0/2.0,40.0/2.0),&Studio,LEFT,CStorage::PNG,xres,yres));
-/*
-	Cameras.push_back(new CCamera(
-							COptic(
-								CLine(FocusAt-RightPos,RightPos),
-								Up,
-								40.0/2.0,
-								40.0/2.0),
-							&Studio,
-							RIGHT, 
-							CStorage::IMG, 
-							xres, 
-							yres));
-*/
 }
 
 void SetupStudio(CStudio& Studio) {
-
 	SetupTextures(Studio);
 	SetupLights(Studio);
 	SetupObjects(Studio);
-
 }
