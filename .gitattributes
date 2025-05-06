@@ -1,0 +1,19 @@
+# Auto normalize text files to LF
+* text=auto eol=lf
+
+# Explicitly mark binary files to avoid EOL normalization
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.tga binary
+*.hdr binary
+*.zip binary
+*.exe binary
+*.dll binary
+*.o binary
+*.obj binary
+*.a binary
+*.lib binary
+*.so binary
+*.dylib binary
