@@ -15,13 +15,6 @@ static void crashHandler(int sig) {
     exit(128 + sig);
 }
 
-void Catcher(int *reglist) {
-
-//	cerr << '\n' << Cam->Line() << ' ' << Cam->Pixel();
-
-	*(reglist + 8) = 3;
-}
-
 // Main entry point
 int main(int argc, char* argv[]) {
     signal(SIGSEGV, crashHandler);
@@ -30,14 +23,7 @@ int main(int argc, char* argv[]) {
     signal(SIGTRAP, crashHandler);
     return RTmain(argc, argv);
 }
-/*
-int matherr (struct exception* a) {
-//	cerr << '\n' << Cam->Line() << ' ' << Cam->Pixel() << ':';
-	cerr << '\n' << a->name << ": " << a->arg1 << ' ' << a->arg2;
-	exit(1);
-	return 0;
-}
-*/
+
 int RTmain(int argc, char* argv[]) {
 
 	cout << "Raytrace ";
