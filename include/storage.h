@@ -10,6 +10,7 @@
 #include <fstream>
 #include "defs.h"
 #include "rtdefs.h"
+#include <vector>
 
 // Import only necessary names from std
 using std::ofstream;
@@ -32,7 +33,7 @@ public:	// 	Constructors
 public:	// 	Services
 
 	scoord StoreScanline(scoord lineNo, CColor* Scanline);
-	scoord StoreScanline(scoord lineNo) { return StoreScanline(lineNo, m_ScanBuffer); }
+    scoord StoreScanline(scoord lineNo) { return StoreScanline(lineNo, m_ScanBuffer.data()); }
 
 	void Close();
 
@@ -45,13 +46,13 @@ public:
 		CSize(scoord x, scoord y) : X(x), Y(y) {}
 	} m_ScreenSize;
 
-	CColor* m_ScanBuffer;
+    std::vector<CColor> m_ScanBuffer;
 
 private:// Data
 
 	const char* FileName;
 	const ImgClass IC;
-	BYTE* m_ScanLineBuffer;
+    std::vector<BYTE> m_ScanLineBuffer;
 
 private:// Methods for storing
 

@@ -23,8 +23,9 @@ CStorage::CStorage(char* FileName, ImgClass FileType,
 	std::string fullPath = directory + "/" + FileName;
 	this->FileName = strdup(fullPath.c_str());
 	
-	m_ScanBuffer = new CColor[X_Resolution];
-	m_ScanLineBuffer = new BYTE[X_Resolution * Y_Resolution * 3];
+		// allocate scan buffers using STL vectors
+		m_ScanBuffer.resize(X_Resolution);
+		m_ScanLineBuffer.resize(X_Resolution * Y_Resolution * 3);
 
 	#if defined VERBOSE
 		cerr << "Storing on file " << FileName << '\n' ;
@@ -33,8 +34,7 @@ CStorage::CStorage(char* FileName, ImgClass FileType,
 
 CStorage::~CStorage() {
 
-	delete[] m_ScanBuffer;
-	delete[] m_ScanLineBuffer;
+	// buffers are managed by std::vector, no manual delete needed
 	
 	#if defined VERBOSE
 		cerr << "Closing file " << endl;
@@ -74,7 +74,7 @@ void CStorage::Close() {
 }
 
 int CStorage::StorePNG() {
-	return stbi_write_png(FileName, m_ScreenSize.X, m_ScreenSize.Y, 3, m_ScanLineBuffer, m_ScreenSize.X * 3);
+    return stbi_write_png(FileName, m_ScreenSize.X, m_ScreenSize.Y, 3, m_ScanLineBuffer.data(), m_ScreenSize.X * 3);
 }
 
 int CStorage::StoreTGA() {
@@ -86,5 +86,5 @@ int CStorage::StoreHDR() {
 }
 
 int CStorage::StoreJPG() {
-	return stbi_write_jpg(FileName, m_ScreenSize.X, m_ScreenSize.Y, 3, m_ScanLineBuffer, m_ScreenSize.X * 3);
+    return stbi_write_jpg(FileName, m_ScreenSize.X, m_ScreenSize.Y, 3, m_ScanLineBuffer.data(), m_ScreenSize.X * 3);
 }
