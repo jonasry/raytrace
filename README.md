@@ -30,7 +30,8 @@ Usage:
 - `resolution`: optional integer; if provided, the output image will be `resolution`×`resolution` pixels.
   If omitted, defaults to 200×160.
 
-The program writes its output to `left.png` in the current directory.
+By default, the engine writes a PNG file named `left.png` into an `output/` directory under the project root.
+You can override the output directory by setting the RT_OUTPUT environment variable.
 
 ## Cleaning
 To remove built artifacts, run:
@@ -40,4 +41,4 @@ make clean
 
 ## Notes
 - The engine uses a basic Makefile. Feel free to integrate a different build system (CMake, etc.) as needed.
-- Output file format is TGA by default.
+- The default output format is PNG (via stb_image_write). Other formats (TGA, HDR, JPG) are supported in code and can be selected by modifying the ImgClass argument in your setup code.
