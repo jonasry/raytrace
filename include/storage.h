@@ -11,6 +11,7 @@
 #include "defs.h"
 #include "rtdefs.h"
 #include <vector>
+#include <string>
 
 // Import only necessary names from std
 using std::ofstream;
@@ -26,8 +27,9 @@ public:	//	Constants
 
 public:	// 	Constructors
 
-	CStorage(char* FileName, ImgClass FileType,
-			 scoord X_Resolution, scoord Y_Resolution);
+    // fileName: base output filename (without directory)
+    CStorage(const std::string& fileName, ImgClass FileType,
+             scoord X_Resolution, scoord Y_Resolution);
 	~CStorage();
 
 public:	// 	Services
@@ -50,7 +52,8 @@ public:
 
 private:// Data
 
-	const char* FileName;
+    // full path (including output directory)
+    std::string FileName;
 	const ImgClass IC;
     std::vector<BYTE> m_ScanLineBuffer;
 

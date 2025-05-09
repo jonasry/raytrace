@@ -10,6 +10,7 @@
 #include "color.h"
 #include "optic.h"
 #include "storage.h"
+#include <string>
 
 // using namespace std; // removed to avoid std::vector conflict
 
@@ -19,8 +20,9 @@ class CCamera : public COptic {
 
 public: // Contructor
 
-	CCamera(const COptic& O, const CStudio* theStudio, char* FileName,
-			CStorage::ImgClass ImgType, scoord X_Res, scoord Y_Res);
+    CCamera(const COptic& O, const CStudio* theStudio,
+            const std::string& FileName,
+            CStorage::ImgClass ImgType, scoord X_Res, scoord Y_Res);
 
 
 public:	// High-level interface ===>

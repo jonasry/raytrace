@@ -10,9 +10,9 @@ namespace fs = std::filesystem;
 	#include <iostream.h>
 #endif
 
-CStorage::CStorage(char* FileName, ImgClass FileType,
+CStorage::CStorage(const std::string& fileName, ImgClass FileType,
 		 scoord X_Resolution, scoord Y_Resolution)
-		 :	FileName(FileName),
+		 :	FileName(fileName),
 		 	IC(FileType),
 		 	m_ScreenSize(CSize(X_Resolution, Y_Resolution))
 {
@@ -21,11 +21,11 @@ CStorage::CStorage(char* FileName, ImgClass FileType,
 	fs::create_directories(directory);
 	
 	std::string fullPath = directory + "/" + FileName;
-	this->FileName = strdup(fullPath.c_str());
+	FileName = fullPath;
 	
-		// allocate scan buffers using STL vectors
-		m_ScanBuffer.resize(X_Resolution);
-		m_ScanLineBuffer.resize(X_Resolution * Y_Resolution * 3);
+	// allocate scan buffers using STL vectors
+	m_ScanBuffer.resize(X_Resolution);
+	m_ScanLineBuffer.resize(X_Resolution * Y_Resolution * 3);
 
 	#if defined VERBOSE
 		cerr << "Storing on file " << FileName << '\n' ;
@@ -74,7 +74,8 @@ void CStorage::Close() {
 }
 
 int CStorage::StorePNG() {
-    return stbi_write_png(FileName, m_ScreenSize.X, m_ScreenSize.Y, 3, m_ScanLineBuffer.data(), m_ScreenSize.X * 3);
+    return stbi_write_png(FileName.c_str(), m_ScreenSize.X, m_ScreenSize.Y, 3,
+                         m_ScanLineBuffer.data(), m_ScreenSize.X * 3);
 }
 
 int CStorage::StoreTGA() {
@@ -86,5 +87,6 @@ int CStorage::StoreHDR() {
 }
 
 int CStorage::StoreJPG() {
-    return stbi_write_jpg(FileName, m_ScreenSize.X, m_ScreenSize.Y, 3, m_ScanLineBuffer.data(), m_ScreenSize.X * 3);
+    return stbi_write_jpg(FileName.c_str(), m_ScreenSize.X, m_ScreenSize.Y, 3,
+                         m_ScanLineBuffer.data(), m_ScreenSize.X * 3);
 }

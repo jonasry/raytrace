@@ -16,7 +16,7 @@
 
 #endif
 
-CCamera::CCamera(const COptic& O, const CStudio* theStudio, char* FileName,
+CCamera::CCamera(const COptic& O, const CStudio* theStudio, const std::string& FileName,
 				 CStorage::ImgClass ImgType, scoord X_Res, scoord Y_Res) :
 	COptic(O),
 	m_Frame(FileName,ImgType,X_Res,Y_Res),
