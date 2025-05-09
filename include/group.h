@@ -47,9 +47,8 @@ public: // Data
 
 inline
 vector CGroup::Normal(const vector& Point) const {
-
-	return CVector(0,0,0);
-
+    (void)Point;
+    return CVector(0,0,0);
 }
 
 #endif

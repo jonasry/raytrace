@@ -20,9 +20,9 @@ public: // Services
 	virtual	vector 	Loc() const {return m_Center;}
 	virtual int     NoShade() const { return FALSE; }
 	
-	virtual void Translate(vector T) {}
-	virtual void Rotate(vector R) {}
-	virtual void Scale(vector S) {}
+	virtual void Translate(vector T) { (void)T; }
+	virtual void Rotate(vector R)    { (void)R; }
+	virtual void Scale(vector S)     { (void)S; }
 
 //	virtual void Serialize(CArchive A);
 

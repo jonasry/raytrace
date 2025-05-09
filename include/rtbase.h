@@ -32,10 +32,13 @@ public: //Structures
 		//	Constructors:
 
 		Intersection()
-			: 	Distance(100000000.0),IntersectedPrimitive(0),
-				IntersectedObject(0){}
-		Intersection(double D, const CPrimitive* P=0):
-			Distance(D), IntersectedPrimitive(P), IntersectedObject(0) {}
+			: Distance(100000000.0),
+			  IntersectedObject(nullptr),
+			  IntersectedPrimitive(nullptr) {}
+		Intersection(double D, const CPrimitive* P = nullptr)
+			: Distance(D),
+			  IntersectedObject(nullptr),
+			  IntersectedPrimitive(P) {}
 
 		//	Operator overloading
 

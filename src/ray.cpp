@@ -11,7 +11,7 @@
 
 int Shaded(CRay::DifferentialArea dA, const CStudio* S, const CLight* L);
 
-CColor CRay::Sample(const CStudio* Studio, unsigned RecurseLevel) {
+CColor CRay::Sample(const CStudio* Studio, int RecurseLevel) {
 	CColor Intensity(0,0,0);
 
 	// Get a sample for this ray

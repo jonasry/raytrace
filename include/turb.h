@@ -14,8 +14,9 @@ class CTurbulence : public CNoise {
 
 public:	// 	Constructor
 
-	CTurbulence(CTexture* Tx1, CTexture* Tx2, double c=1) : CNoise(Tx1,Tx2,c), m_Limit(0.01),
-															a0(0), a1(2), a2(0), a3(-1) {}
+    CTurbulence(CTexture* Tx1, CTexture* Tx2, double c = 1)
+        : CNoise(Tx1, Tx2, c), m_Limit(0.01),
+          a3(-1), a2(0), a1(2), a0(0) {}
 
 public:	//  Services:
 

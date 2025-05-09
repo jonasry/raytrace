@@ -1,5 +1,5 @@
 CC = g++
-CXXFLAGS = -std=c++17 -Wall -g -Isrc -Iinclude -Ilibs
+CXXFLAGS = -std=c++17 -Wall -g -Isrc -Iinclude -isystem libs
 SRC_DIR = src
 OBJ_DIR = build
 BIN_DIR = build

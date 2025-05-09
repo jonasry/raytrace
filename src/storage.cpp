@@ -12,9 +12,9 @@ namespace fs = std::filesystem;
 
 CStorage::CStorage(const std::string& fileName, ImgClass FileType,
 		 scoord X_Resolution, scoord Y_Resolution)
-		 :	FileName(fileName),
-		 	IC(FileType),
-		 	m_ScreenSize(CSize(X_Resolution, Y_Resolution))
+		 :	m_ScreenSize(CSize(X_Resolution, Y_Resolution)),
+		 	FileName(fileName),
+		 	IC(FileType)
 {
 	const char* outputDir = std::getenv("RT_OUTPUT");
 	std::string directory = outputDir ? outputDir : "output";

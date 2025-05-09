@@ -77,7 +77,6 @@ void SetupCameras(std::vector<std::unique_ptr<CCamera>>& Cameras, CStudio& Studi
 	CVector Up(0,0,1);
 	
 	CVector LeftPos (CamPos-!CrossProduct(Up,CamPos-FocusAt)*.3);
-	CVector RightPos(CamPos+!CrossProduct(Up,CamPos-FocusAt)*.3);
 
 	Cameras.emplace_back(new CCamera(COptic(CLine(FocusAt-LeftPos,LeftPos),Up,40.0/2.0,40.0/2.0),&Studio,LEFT,CStorage::PNG,xres,yres));
 }

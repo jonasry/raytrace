@@ -39,9 +39,9 @@ public: // Services
 
 	int Id() const { return m_Id; }	//	class identification
 
-	virtual void Translate(vector T){}
-	virtual void Rotate(vector R)	{}
-	virtual void Scale(vector S) 	{}
+    virtual void Translate(vector T) { (void)T; }
+    virtual void Rotate(vector R) { (void)R; }
+    virtual void Scale(vector S) { (void)S; }
 
 //	virtual void Serialize(CArchive A);
 

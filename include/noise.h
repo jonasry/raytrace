@@ -14,8 +14,9 @@ class CNoise : public CTexture {
 
 public:	// 	Constructor
 
-	CNoise(CTexture* Tx1, CTexture* Tx2, double c=1) : T1(Tx1), T2(Tx2), m_Scale(c),
-														a0(0), a1(2), a2(0), a3(-1) {}
+    CNoise(CTexture* Tx1, CTexture* Tx2, double c = 1)
+        : T1(Tx1), T2(Tx2), m_Scale(c),
+          a3(-1), a2(0), a1(2), a0(0) {}
 
 
 public:	//  Services:

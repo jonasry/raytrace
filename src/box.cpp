@@ -17,7 +17,6 @@ CBox::CBox(const vector& Max, const vector& Min, CTexture* T,
 CRTBase::Intersection CBox::Intersect(CRay& Ray) const {
                        
 	int i;
-	int inside = 1;
 	int quadrant[3];
 	int whichPlane;
 	double maxT[3];
@@ -34,11 +33,9 @@ CRTBase::Intersection CBox::Intersect(CRay& Ray) const {
 		if(loc[i] < m_minB[i]) {
 			quadrant[i] = LEFT;
 			candidatePlane[i] = m_minB[i];
-			inside = 0;
 		} else if (loc[i] > m_maxB[i]) {
 			quadrant[i] = RIGHT;
 			candidatePlane[i] = m_maxB[i];
-			inside = FALSE;
 		} else	{
 			quadrant[i] = MIDDLE;
 		}	

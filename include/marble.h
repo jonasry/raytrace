@@ -14,8 +14,9 @@ class CMarble : public CTurbulence {
 
 public:	// 	Constructor
 
-	CMarble(CTexture* Tx1, CTexture* Tx2, double c=1) : CTurbulence(Tx1,Tx2,c),
-														a0(0), a1(0.5), a2(0), a3(0.5) {}
+    CMarble(CTexture* Tx1, CTexture* Tx2, double c = 1)
+        : CTurbulence(Tx1, Tx2, c),
+          a3(0.5), a2(0), a1(0.5), a0(0) {}
 
 
 public:	//  Services:

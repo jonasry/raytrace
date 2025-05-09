@@ -41,9 +41,9 @@ public: // Services
 	virtual double Ks(const vector &) const { return m_Ks; }
 	virtual double IOR(const vector &) { return m_IOR; }
 
-	virtual void Translate(vector T) {}
-	virtual void Rotate(vector R) {}
-	virtual void Scale(vector S) {}
+	virtual void Translate(vector T) { (void)T; }
+	virtual void Rotate(vector R)    { (void)R; }
+	virtual void Scale(vector S)     { (void)S; }
 
 //	virtual void Serialize(CArchive A);
 
