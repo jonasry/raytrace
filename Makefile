@@ -1,5 +1,6 @@
 CC = g++
-CXXFLAGS = -std=c++17 -Wall -g -Isrc -Iinclude -isystem libs
+CXXFLAGS = -std=c++17 -Wall -g -Isrc -Iinclude -isystem libs \
+           -Ithird_party/rapidyaml/include
 SRC_DIR = src
 OBJ_DIR = build
 BIN_DIR = build

@@ -32,6 +32,11 @@ Usage:
 
 By default, the engine writes a PNG file named `left.png` into an `output/` directory under the project root.
 You can override the output directory by setting the RT_OUTPUT environment variable.
+You can also supply a YAML scene file instead of a numeric resolution to fully configure camera, lights, textures, objects, and output.
+For example:
+```sh
+./rt path/to/scene.yaml
+```
 
 ## Cleaning
 To remove built artifacts, run:

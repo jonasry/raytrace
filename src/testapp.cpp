@@ -5,6 +5,8 @@
 #include <unistd.h>    // for STDERR_FILENO
 #include <cstdlib>
 #include <iostream>
+#include <string>
+#include "SceneLoader.hpp"
 using namespace std;
 
 // Signal handler to print stack trace on crash
@@ -36,14 +38,27 @@ int RTmain(int argc, char* argv[]) {
 
 	int xres, yres;
 
-	if (argc != 2) {
-		xres=200;
-		yres=160;
-	} else {
-		xres=yres=atoi(argv[1]);
-	}
-
-	CInterface RT_Interface;
+    CInterface RT_Interface;
+    // If a single YAML file is provided, load scene from file
+    if (argc == 2) {
+        std::string arg(argv[1]);
+        auto has_ext = [&](const std::string& s, const std::string& ext) {
+            return s.size() > ext.size() && s.substr(s.size() - ext.size()) == ext;
+        };
+        if (has_ext(arg, ".yaml") || has_ext(arg, ".yml")) {
+            if (!SceneLoader::load(arg, RT_Interface.Studio, RT_Interface.Cameras)) {
+                std::cerr << "Failed to load scene file: " << arg << std::endl;
+                return 1;
+            }
+            RT_Interface.SnapAll();
+            return 0;
+        }
+        // otherwise treat as resolution
+        xres = yres = atoi(argv[1]);
+    } else {
+        xres = 200;
+        yres = 160;
+    }
 
 	SetupStudio(RT_Interface.Studio);
 	SetupCameras(RT_Interface.Cameras,RT_Interface.Studio, xres, yres);
