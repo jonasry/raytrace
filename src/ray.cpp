@@ -9,14 +9,10 @@
 #include "prim2.h"
 #include "texture.h"  // for CTexture
 
-
 int Shaded(CRay::DifferentialArea dA, const CStudio* S, const CLight* L);
 
 CColor CRay::Sample(const CStudio* Studio, unsigned RecurseLevel) {
-
-
 	CColor Intensity(0,0,0);
-
 
 	// Get a sample for this ray
 	//
@@ -27,14 +23,10 @@ CColor CRay::Sample(const CStudio* Studio, unsigned RecurseLevel) {
 	// 4. Add illumination from light transmitted through
 	//	  intersected object
 
-
 	CRTBase::Intersection I = Studio->Objects.Intersect(*this);
 
 	if (I.IntersectedPrimitive==0)		// 	The ray didn't intersect.
 		return CColor(.2,.55,.85)*.5;  	//  Background color
-
-
-
 
 	//	Replace the intersected object with a small differential plane:
 
@@ -45,8 +37,7 @@ CColor CRay::Sample(const CStudio* Studio, unsigned RecurseLevel) {
 	if ((Dir()*m_dA.Normal)>0.0)
 		m_dA.Normal = -m_dA.Normal;
 
-
-	//	Add direct illumination:
+	// Add direct illumination:
     // Add direct illumination from each light
     for (const auto& lightPtr : Studio->Lights) {
         const CLight* L = lightPtr.get();
@@ -57,33 +48,23 @@ CColor CRay::Sample(const CStudio* Studio, unsigned RecurseLevel) {
         }
     }
 
-
-
 	if (RecurseLevel==Studio->RecurseDepth)	return Intensity;
-
-
 
 	//	Add indirect illumination: (Temporary)
 
 	if ( m_dA.Texture->Ks(m_dA.Loc) > .0 ) { // consider nonzero level
-
 		vector	ReflectedDirection = Dir() - 2*(Dir() * m_dA.Normal)*m_dA.Normal;
-		CRay*	R = new CRay( ReflectedDirection, m_dA.Loc );
+		CRay R(ReflectedDirection, m_dA.Loc);
 
-		Intensity += R->Sample(Studio, RecurseLevel+1)
+		Intensity += R.Sample(Studio, RecurseLevel+1)
 			* m_dA.Texture->Reflectivity(m_dA.Loc, m_dA.Normal, ReflectedDirection);
-
-		delete R;
-
 	}
 
 	double a = exp(-I.Distance/20.);
 	return Intensity*a + CColor(.2,.55,.85)*.5*(1-a);
-
 }
 
 int Shaded(CRay::DifferentialArea dA, const CStudio* S, const CLight* L) {
-
 	if (L->NoShade()) return 0;
 
 	vector v = L->Loc()-dA.Loc;
@@ -98,5 +79,4 @@ int Shaded(CRay::DifferentialArea dA, const CStudio* S, const CLight* L) {
 	if (I.Distance<Dist) return 1;
 
 	return 0;
-
 }
