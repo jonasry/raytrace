@@ -58,14 +58,14 @@ void SetupObjects(CStudio& Studio) {
 	//	Define Objects
 	//	--------------	
 
-    CBox* B = new CBox(CVector(1,1,1), CVector(0,0,0), RED, nullptr, 0);
+    CBox* B = new CBox(CVector(1,1,1), CVector(0,0,0), RED, nullptr, false);
     B->Translate(CVector(-.5,-.5,0));
     B->Rotate(CVector(0,0,.1745));
     B->Scale(CVector(1,1,2));
     B->Translate(CVector(0,5,0));
     Studio.Objects.Objects.push_back(B);
                                    
-    CPlane* P = new CPlane(CVector(0,0,0.01), CVector(0,0,1), GREEN, nullptr, 0);
+    CPlane* P = new CPlane(CVector(0,0,0.01), CVector(0,0,1), GREEN, nullptr, false);
     P->Translate(CVector(0,0,0));
     P->Rotate(CVector(0,0,0.3491));
     Studio.Objects.Objects.push_back(P);

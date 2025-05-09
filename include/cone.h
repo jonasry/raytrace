@@ -16,15 +16,17 @@ class CCone : public CPrimitive {
 
 public: // Constructor
 
-	CCone(CLine C, double R, CTexture* T, CPrimitive* B, int F);
-	CCone(vector Base, vector Apex, double R, CTexture* T, CPrimitive* B, int F);
+	// flipInside: if true, inside test is inverted
+	CCone(const CLine& C, double R, CTexture* T, CPrimitive* B, bool flipInside) noexcept;
+	CCone(const vector& Base, const vector& Apex, double R,
+	      CTexture* T, CPrimitive* B, bool flipInside) noexcept;
 
 
 public: // Services
 
 	virtual Intersection Intersect(CRay& Ray) const;
 	virtual vector Normal(const vector&) const;
-	virtual int Inside(const vector& Point, const CPrimitive*) const;
+   virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept;
 
 	virtual void Translate(vector T);
 	virtual void Scale(vector S);
@@ -48,14 +50,15 @@ private:// First impl. only real. a cylinder.
 };
 
 inline
-int CCone::Inside(const vector& Point, const CPrimitive*) const {
+bool CCone::Inside(const vector& Point, const CPrimitive*) const noexcept {
 
 	double a=m_pl.Dir()*(Point-m_pl.Loc());
 
 	vector b = Point-a*m_pl.Dir()-m_pl.Loc();
 	double k = b.NormOf();
 
-	return (k<=m_Radius)^m_FlipInside;
+    bool inside = (k <= m_Radius);
+    return inside != m_FlipInside;
 
 }
 

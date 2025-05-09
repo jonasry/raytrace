@@ -13,22 +13,24 @@ class CUnion : public CGroup {
 
 public: // Constructor
 
-	CUnion(int F, CPrimitive* B) : CGroup(F,B) {}
+    // flipInside: invert inside test if true
+    CUnion(bool flipInside, CPrimitive* B) noexcept : CGroup(flipInside, B) {}
 
 
 public: // Services
 
 	virtual Intersection Intersect(CRay& Ray) const;
-	virtual int	Inside(const vector& a, const CPrimitive* C) const;
+    // Returns true if point is inside union (with optional flip)
+    virtual bool	Inside(const vector& a, const CPrimitive* C) const noexcept;
 
 //	virtual void Serialize(CArchive A);
 
 };
 
 inline
-int CUnion::Inside(const vector& a, const CPrimitive* C) const {
+bool CUnion::Inside(const vector& a, const CPrimitive* C) const noexcept {
 
-	return CGroup::Inside(a,C)^m_FlipInside;
+    return CGroup::Inside(a, C) != (m_FlipInside != 0);
 
 }
 

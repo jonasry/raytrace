@@ -13,13 +13,15 @@ class CIntersection : public CGroup {
 
 public: // Constructor
 
-	CIntersection(int F,CPrimitive* B) : CGroup(F,B) {}
+    // flipInside: invert inside test if true
+    CIntersection(bool flipInside, CPrimitive* B) noexcept : CGroup(flipInside, B) {}
 
 
 public: // Services
 
 	virtual Intersection Intersect(CRay& Ray) const;
-	virtual int Inside(const vector& a, const CPrimitive* C) const;
+    // Returns true if point is inside intersection (with optional flip)
+    virtual bool Inside(const vector& a, const CPrimitive* C) const noexcept;
 
 //	virtual void Serialize(CArchive A);
 

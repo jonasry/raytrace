@@ -39,15 +39,16 @@ public: //Structures
 
 		//	Operator overloading
 
-		int operator==(CPrimitive* P) { return IntersectedPrimitive==P; }
-		int operator!=(CPrimitive* P) { return IntersectedPrimitive!=P; }
+        bool operator==(const CPrimitive* P) const noexcept { return IntersectedPrimitive == P; }
+        bool operator!=(const CPrimitive* P) const noexcept { return IntersectedPrimitive != P; }
 
 	};
 
 public: // Raytrace-specific methods
 
 	virtual Intersection Intersect(CRay& Ray) const = 0;
-	virtual int Inside(const vector&, const CPrimitive*) const = 0;
+    // Returns true if the point is inside the primitive
+    virtual bool Inside(const vector&, const CPrimitive*) const noexcept = 0;
 	virtual	vector Normal(const vector&) const = 0;
 
 };

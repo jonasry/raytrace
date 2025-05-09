@@ -15,14 +15,17 @@ class CPlane : public CPrimitive {
 
 public: // Constructor
 
-	CPlane(vector C, vector N, CTexture* T, CPrimitive* B, int F);
+    // flipInside: if true, inside test is inverted
+    CPlane(const vector& C, const vector& N, CTexture* T,
+           CPrimitive* B, bool flipInside) noexcept;
 
 
 public: // Services
 
 	virtual Intersection Intersect(CRay& Ray) const;
 	virtual vector Normal(const vector&) const;
-	virtual int Inside(const vector& Point, const CPrimitive*) const;
+	// Returns true if the point is inside the plane half-space (may be inverted)
+	virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept;
 
 	virtual void Translate(vector T);
 	virtual void Scale(vector S);

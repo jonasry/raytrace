@@ -30,7 +30,8 @@ CRTBase::Intersection CIntersection::Intersect(CRay& Ray) const {
 
 }
 
-int CIntersection::Inside(const vector& Point, const CPrimitive* C) const {
+// Returns true if point is inside all members of the intersection (excluding C), with optional flip
+bool CIntersection::Inside(const vector& Point, const CPrimitive* C) const noexcept {
 
 	//	Point is inside the intersection if Point is inside all of
 	//	the members of the intersection
@@ -40,13 +41,15 @@ int CIntersection::Inside(const vector& Point, const CPrimitive* C) const {
 	//	not clear if Point belongs to C or not.
 
     // Check that the point is inside all members of the intersection (excluding C)
+    // Determine if point is inside every member (excluding C)
+    bool allInside = true;
     for (auto* Obj : Objects) {
         if (Obj == C) continue;
         if (!Obj->Inside(Point, nullptr)) {
-            return FALSE ^ m_FlipInside;
+            allInside = false;
+            break;
         }
     }
-    return TRUE ^ m_FlipInside;
-
-
+    // Apply flip flag: XOR basic result with flip setting
+    return allInside != m_FlipInside;
 }

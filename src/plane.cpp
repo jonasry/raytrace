@@ -3,7 +3,8 @@
 #include "plane.h"
 #include "ray.h"
 
-CPlane::CPlane(vector C, vector N, CTexture* T, CPrimitive* B, int F): CPrimitive(T,F,B,Plane) {
+CPlane::CPlane(const vector& C, const vector& N, CTexture* T, CPrimitive* B, bool flipInside) noexcept
+    : CPrimitive(T, flipInside, B, Plane) {
 	
 	CVector normal(N), center(C);
 	
@@ -43,9 +44,10 @@ vector CPlane::Normal(const vector& P) const {
 
 }
 
-int CPlane::Inside(const vector& P, const CPrimitive*) const {
-
-	return ((P*m_Normal-m_Center)<=0)^m_FlipInside;
+bool CPlane::Inside(const vector& P, const CPrimitive*) const noexcept {
+    // inside if point is on or below plane normal, optionally flipped
+    bool onSide = (P * m_Normal - m_Center) <= 0.0;
+    return onSide != m_FlipInside;
 
 }
 

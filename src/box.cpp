@@ -8,8 +8,10 @@
 #define MIDDLE 1
 #define RIGHT 2
 
-CBox::CBox(vector Max, vector Min, CTexture* T, CPrimitive* B, int F):
-	CPrimitive(T,F,B,Box), m_maxB(Max), m_minB(Min){}
+// flipInside: if true, inside test is inverted
+CBox::CBox(const vector& Max, const vector& Min, CTexture* T,
+           CPrimitive* B, bool flipInside) noexcept
+    : CPrimitive(T, flipInside, B, Box), m_maxB(Max), m_minB(Min) {}
 
 
 CRTBase::Intersection CBox::Intersect(CRay& Ray) const {
@@ -101,20 +103,19 @@ vector CBox::Normal(const vector& Point) const {
 }
 
 
-int CBox::Inside(const vector& Point, const CPrimitive*) const {
-
-	int inside=1;
+bool CBox::Inside(const vector& Point, const CPrimitive*) const noexcept {
+    bool inside = true;
 	CVector point(Point); 
 
 	m_Transform.invTransPoint(point);
 
-	for (int i=0; i<3; i++)
-		if(Point[i] < m_minB[i]) 
-			inside = 0;
-	 	else if (Point[i] > m_maxB[i]) 
-			inside = 0;
-		
-	return inside;
+    for (int i = 0; i < 3; i++) {
+        if (Point[i] < m_minB[i] || Point[i] > m_maxB[i]) {
+            inside = false;
+            break;
+        }
+    }
+    return inside;
 
 }
 

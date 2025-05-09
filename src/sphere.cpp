@@ -4,8 +4,8 @@
 #include "ray.h"
 #include "trans.h"
 
-CSphere::CSphere(double R, vector C, CTexture* T, CPrimitive* B, int F) :
-	CPrimitive(T,F,B,Sphere), m_Radius(R), m_Center(C) {}
+CSphere::CSphere(double R, const vector& C, CTexture* T, CPrimitive* B, bool flipInside) noexcept
+    : CPrimitive(T, flipInside, B, Sphere), m_Radius(R), m_Center(C) {}
 
 
 CRTBase::Intersection CSphere::Intersect(CRay& Ray) const {

@@ -15,14 +15,16 @@ class CBox : public CPrimitive {
 
 public: // Constructor
 
-	CBox(vector Max, vector Min, CTexture* T, CPrimitive* B, int F);
+    // flipInside: invert inside test if true
+    CBox(const vector& Max, const vector& Min, CTexture* T,
+         CPrimitive* B, bool flipInside) noexcept;
 
 
 public: // Services
 
 	virtual Intersection Intersect(CRay& Ray) const;
 	virtual vector Normal(const vector&) const;
-	virtual int Inside(const vector& Point, const CPrimitive*) const;
+    virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept;
 
 	virtual void Translate(vector T);
 	virtual void Scale(vector S);

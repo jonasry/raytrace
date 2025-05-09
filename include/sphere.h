@@ -15,14 +15,16 @@ class CSphere : public CPrimitive {
 
 public: // Constructor
 
-	CSphere(double R, vector C, CTexture* T, CPrimitive* B, int F);
+    // flipInside: invert inside test if true
+    CSphere(double R, const vector& C, CTexture* T,
+            CPrimitive* B, bool flipInside) noexcept;
 
 
 public: // Services
 
 	virtual Intersection Intersect(CRay& Ray) const;
 	virtual vector Normal(const vector&) const;
-	virtual int Inside(const vector& Point, const CPrimitive*) const;
+    virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept;
 	
 	virtual void Translate(vector T);
 	virtual void Scale(vector S);
@@ -48,11 +50,12 @@ vector CSphere::Normal(const vector& Point) const {
 }
 
 inline
-int CSphere::Inside(const vector& Point, const CPrimitive*) const {
+bool CSphere::Inside(const vector& Point, const CPrimitive*) const noexcept {
 
 	double a = (Point-m_Center).NormOf();
 
-	return (a<m_Radius)^m_FlipInside;
+    bool inside = (a < m_Radius);
+    return inside != m_FlipInside;
 
 }
 

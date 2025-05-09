@@ -2,8 +2,12 @@
 
 //	Constructor:
 
-CGroup::CGroup(int F,CPrimitive* B) : CPrimitive(0,F,B,Group) {}
-CGroup::CGroup(CPrimitive* B) : CPrimitive(0,0,B,Group) {}
+// Constructor: flipInside determines inversion of inside test
+CGroup::CGroup(bool flipInside, CPrimitive* B) noexcept
+    : CPrimitive(nullptr, flipInside, B, Group) {}
+// Default constructor: no inversion
+CGroup::CGroup(CPrimitive* B) noexcept
+    : CPrimitive(nullptr, false, B, Group) {}
 
 CGroup::~CGroup() {
     // Delete all child primitives and clear the container
@@ -36,7 +40,7 @@ CRTBase::Intersection CGroup::Intersect(CRay& Ray) const {
 
 }
 
-int CGroup::Inside(const vector& Point, const CPrimitive* C) const {
+bool CGroup::Inside(const vector& Point, const CPrimitive* C) const noexcept {
 
 	//	Point is inside the group if Point is inside one or more of
 	//	the members of the group.
@@ -50,10 +54,9 @@ int CGroup::Inside(const vector& Point, const CPrimitive* C) const {
     // Check if any member contains the point (excluding C)
     for (auto* Obj : Objects) {
         if (Obj == C) continue;
-        if (Obj->Inside(Point, nullptr)) return TRUE;
+        if (Obj->Inside(Point, nullptr)) return true;
     }
-
-	return FALSE;
+    return false;
 
 }
                                  

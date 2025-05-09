@@ -4,14 +4,16 @@
 #include "ray.h" 
 #include "texture.h"
 
-CCone::CCone(CLine C, double R, CTexture* T, CPrimitive* B, int F)
-	: CPrimitive(T,F,B,Cone), m_pl(C), m_Radius(R),
-	  t_Radius_2(R*R), t_dl(m_pl.Dir()*m_pl.Loc()) {}
+// flipInside: invert inside test
+CCone::CCone(const CLine& C, double R, CTexture* T, CPrimitive* B, bool flipInside) noexcept
+    : CPrimitive(T, flipInside, B, Cone), m_pl(C), m_Radius(R),
+      t_Radius_2(R*R), t_dl(m_pl.Dir()*m_pl.Loc()) {}
 
 
-CCone::CCone(vector Base, vector Apex, double R, CTexture* T, CPrimitive* B, int F)
-	: CPrimitive(T, F, B, Cone), m_pl(Apex-Base, Base), m_Radius(R),
-	  t_Radius_2(R*R), t_dl(m_pl.Dir()*m_pl.Loc()) {}
+CCone::CCone(const vector& Base, const vector& Apex, double R,
+             CTexture* T, CPrimitive* B, bool flipInside) noexcept
+    : CPrimitive(T, flipInside, B, Cone), m_pl(Apex-Base, Base), m_Radius(R),
+      t_Radius_2(R*R), t_dl(m_pl.Dir()*m_pl.Loc()) {}
 
 
 CRTBase::Intersection CCone::Intersect(CRay& Ray) const {

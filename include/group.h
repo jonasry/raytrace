@@ -15,16 +15,21 @@ class CGroup : public CPrimitive {
 
 // Constructor
 
-public:		CGroup(CPrimitive* B);
-			virtual ~CGroup();
-protected:  CGroup(int F,CPrimitive* B);
+    public:
+        // B: bounding primitive, flipInside=false
+        CGroup(CPrimitive* B) noexcept;
+        virtual ~CGroup();
+    protected:
+        // B: bounding primitive; flipInside=true inverts inside test
+        CGroup(bool flipInside, CPrimitive* B) noexcept;
 
 
 public: // Services
 
 	virtual Intersection Intersect(CRay& Ray) const;
 	virtual vector Normal(const vector& Point) const;
-	virtual int Inside(const vector& Point, const CPrimitive*) const;
+	// Returns true if point is inside any member primitive (excluding C)
+	virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept;
 	
 	virtual void Translate(CVector T);
 	virtual void Scale(CVector S);

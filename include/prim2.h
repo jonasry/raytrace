@@ -21,12 +21,12 @@ class CPrimitive : public CRTBase, public CWFBase, public CSceneObject {
 
 public:
 	enum ClassId {Plane=1, Sphere=2, Cone=3, Group=4, Intersec=5, Union=6, Box=7, Strange=0};
-	enum {NonInvert=0, Invert=1};
+    // flipInside: if true, inside/outside test is inverted
 
 
 public:	// Constructors
 
-	CPrimitive(CTexture* theTexture, int FlipN, CPrimitive* theBound, ClassId C=Strange);
+    CPrimitive(CTexture* theTexture, bool flipInside, CPrimitive* theBound, ClassId C=Strange) noexcept;
     virtual ~CPrimitive() = default;
 
 
@@ -34,7 +34,8 @@ public: // Services
 
 	int IntersectBound(CRay& Ray) const;
 	CTexture* Texture() const;
-	virtual void SetInside(int F=NonInvert);
+        // Set flip flag: if true, inside/outside test is inverted
+        virtual void SetInside(bool inside = false) noexcept;
 
 	int Id() const { return m_Id; }	//	class identification
 
@@ -48,7 +49,7 @@ protected:
 
 	static double 	m_eps; // A small value used in intersection routine
 	ClassId 		m_Id;
-	int 			m_FlipInside;
+    bool    		m_FlipInside;
 
 
 private:// Data
@@ -81,8 +82,8 @@ int CPrimitive::IntersectBound(CRay& Ray) const {
 }
 
 inline
-void CPrimitive::SetInside(int F) {
-	m_FlipInside=F;
+void CPrimitive::SetInside(bool inside) noexcept {
+    m_FlipInside = inside;
 }
 
 #endif
