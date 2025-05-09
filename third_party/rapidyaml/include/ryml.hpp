@@ -12,9 +12,16 @@ namespace ryml {
         // stubbed: no real parse
         static Tree parse_in_place(const c4::yml::csubstr&) { return Tree(); }
         struct NodeRef {
-            bool has_child(const char*) const { return false; }
-            NodeRef operator[](const char*) const { return NodeRef(); }
-            struct Val { int to_int() const { return 0; } };
+            // mapping access by key string
+            bool has_child(const c4::yml::csubstr&) const { return false; }
+            NodeRef operator()(const c4::yml::csubstr&) const { return NodeRef(); }
+            // sequence access by index
+            NodeRef operator[](size_t) const { return NodeRef(); }
+            struct Val {
+                int to_int() const { return 0; }
+                double to_double() const { return 0.0; }
+                std::string to_string() const { return std::string(); }
+            };
             Val val() const { return Val(); }
         };
         NodeRef rootref() const { return NodeRef(); }
