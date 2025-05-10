@@ -9,8 +9,6 @@
 #include "studio.h"
 #include "camera.h"
 
-namespace ryml { struct Tree; }
-
 class SceneLoader {
 public:
     // Load scene from YAML file into provided studio and cameras vector.

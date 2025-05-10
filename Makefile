@@ -1,6 +1,9 @@
 CC = g++
-CXXFLAGS = -std=c++17 -Wall -g -Isrc -Iinclude -isystem libs \
-           -Ithird_party/rapidyaml/include
+# Path to generated single-header ryml_all.hpp
+RYML_SINGLE_HEADER = libs/ryml_all.hpp
+STB_IMAGE_WRITE_SINGLE_HEADER = libs/stb_image_write.h
+
+CXXFLAGS = -std=c++17 -Wall -g -Isrc -Iinclude -isystem libs
 SRC_DIR = src
 OBJ_DIR = build
 BIN_DIR = build
@@ -11,7 +14,7 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
 
 .PHONY: all clean
 
-all: $(TARGET)
+all: $(STB_IMAGE_WRITE_SINGLE_HEADER) $(RYML_SINGLE_HEADER) $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	@mkdir -p $(BIN_DIR)
@@ -23,3 +26,8 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)/rt
+
+# Generate single-header YAML parser
+$(RYML_SINGLE_HEADER):
+	mkdir -p $(dir $@)
+	python3 third_party/rapidyaml/tools/amalgamate.py $@
