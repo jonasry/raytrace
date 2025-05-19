@@ -4,8 +4,9 @@
 #include "SceneLoader.hpp"
 #include "testapp.h"      // for SetupStudio
 #include "storage.h"      // for CStorage, ImgClass
-// STL for string conversions
 #include <string>
+#include <unordered_map>
+// STL for string conversions
 #include "camera.h"
 #include "line.h"
 #include "optic.h"
@@ -16,6 +17,26 @@
 
 #define RYML_SINGLE_HDR_DEFINE_NOW
 #include "ryml_all.hpp"
+
+CVector getVector(const c4::yml::NodeRef& nodeRef) {
+    auto xs = nodeRef[0].val();
+    auto ys = nodeRef[1].val();
+    auto zs = nodeRef[2].val();
+    auto x = std::stof(std::string(xs.str, xs.len));
+    auto y = std::stof(std::string(ys.str, ys.len));
+    auto z = std::stof(std::string(zs.str, zs.len));
+    return CVector(x,y,z);
+}
+
+CColor getColor(const c4::yml::NodeRef& nodeRef) {
+    auto xs = nodeRef[0].val();
+    auto ys = nodeRef[1].val();
+    auto zs = nodeRef[2].val();
+    auto x = std::stof(std::string(xs.str, xs.len));
+    auto y = std::stof(std::string(ys.str, ys.len));
+    auto z = std::stof(std::string(zs.str, zs.len));
+    return CColor(x,y,z);
+}
 
 bool SceneLoader::load(const std::string& filename,
                        CStudio& studio,
@@ -48,7 +69,45 @@ bool SceneLoader::load(const std::string& filename,
     }
 
     // 2. Setup default scene (textures, lights, objects)
-    SetupStudio(studio);
+    // Map texture names to raw pointers (studio owns the textures)
+    std::unordered_map<std::string, CTexture*> textureMap;
+    if (root.has_child("textures")) {
+        auto textures = root["textures"];
+        for (auto tex : textures) {
+            std::string type = tex["type"].val().str;
+            if (type == "solid") {
+                auto name = tex["name"];
+                auto color = tex["color"];
+                auto cvec = getColor(color);
+                auto texture = new CTexture(cvec);
+                studio.Textures.emplace_back(texture);
+                textureMap[name.val().str] = texture;
+            }
+        }
+    }
+    
+    if (root.has_child("objects")) {
+        auto objects = root["objects"];
+        for (auto obj : objects) {
+            std::string type = obj["type"].val().str;
+            if (type == "plane") {
+                auto point = obj["point"];
+                auto normal = obj["normal"];
+                auto texture = obj["texture"];
+                auto vvec = getVector(point);
+                auto nvec = getVector(normal);
+                auto it = textureMap.find(texture.val().str);
+                CPlane* P = new CPlane(vvec, nvec, it->second, nullptr, false);
+                studio.Objects.Objects.push_back(P);
+            
+            } else if (type == "sphere") {
+
+            }
+        }
+
+    } else {
+        SetupStudio(studio);
+    }
 
     // 3. Output parameters
     std::string out_fname = "output.png";
