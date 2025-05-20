@@ -101,9 +101,18 @@ bool SceneLoader::load(const std::string& filename,
                 studio.Objects.Objects.push_back(P);
             
             } else if (type == "sphere") {
-
+                auto centerNode = obj["center"];
+                auto radiusNode = obj["radius"];
+                auto textureNode = obj["texture"];
+                auto cvec = getVector(centerNode);
+                auto rval = radiusNode.val();
+                auto radius = std::stod(std::string(rval.str, rval.len));
+                auto texIt = textureMap.find(textureNode.val().str);
+                CSphere* sph = new CSphere(radius, cvec, texIt->second, nullptr, false);
+                studio.Objects.Objects.push_back(sph);
             }
         }
+    	SetupLights(studio);
 
     } else {
         SetupStudio(studio);

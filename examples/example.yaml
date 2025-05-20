@@ -13,3 +13,23 @@ camera:
   look_at: [0,-2,4]
   up: [0,0,1]
   fov: [40,30]
+
+textures:
+  - name: white
+    type: solid
+    color: [1,1,0]
+
+objects:
+  - id: floor
+    type: plane
+    point: [0,0,0.01]
+    normal: [0,0,1]
+    texture: white
+  - id: ball
+    type: sphere
+    center: [1,1,1]
+    radius: 1
+    texture: white
+    transforms:
+      - translate: [0,0,0]
+      - scale: [1,1,1]
