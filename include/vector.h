@@ -73,7 +73,7 @@ private:
 	double  &x,&y,&z;	// components of vector 
 	double  d[3];
 
-	double dotprod (const CVector &, const CVector &) const;
+	// double dotprod (const CVector &, const CVector &) const; // Removed this line
 
 
 };
@@ -141,19 +141,13 @@ Normalize(const CVector & V) {
 	return CVector(V/V.NormOf());
 }
 
-inline
-double
-CVector::dotprod(const CVector& v1, const CVector& v2) const {
-	return ( v1.GetX() * v2.GetX() +
-			 v1.GetY() * v2.GetY() +
-			 v1.GetZ() * v2.GetZ() );
-}
+// Removed CVector::dotprod implementation
 
 inline
 double
 operator* (const CVector& A, const CVector& B) {
 
-	return A.dotprod(A, B);
+	return A.GetX() * B.GetX() + A.GetY() * B.GetY() + A.GetZ() * B.GetZ();
 
 }
 

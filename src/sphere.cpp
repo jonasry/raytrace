@@ -70,3 +70,9 @@ void CSphere::Rotate(vector R) {
     
 }
 
+vector CSphere::Normal(const vector& Point) const {
+    // Normal is the normalized vector from the center to the point on the surface
+    vector normal = Point - m_Center;
+    return normal.Normalize(); // Or !normal if operator! is preferred
+}
+

@@ -23,7 +23,7 @@ public: // Constructor
 public: // Services
 
 	virtual Intersection Intersect(CRay& Ray) const;
-	virtual vector Normal(const vector&) const;
+	virtual vector Normal(const vector& Point) const override;
     virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept;
 	
 	virtual void Translate(vector T);
@@ -42,12 +42,13 @@ private:
 
 };
 
-inline
-vector CSphere::Normal(const vector& Point) const {
-
-	return Texture()->Normal(Point,!(Point-m_Center));
-
-}
+// Removed inline implementation of CSphere::Normal
+// inline
+// vector CSphere::Normal(const vector& Point) const {
+// 
+// 	return Texture()->Normal(Point,!(Point-m_Center));
+// 
+// }
 
 inline
 bool CSphere::Inside(const vector& Point, const CPrimitive*) const noexcept {
