@@ -71,8 +71,17 @@ void CSphere::Rotate(vector R) {
 }
 
 vector CSphere::Normal(const vector& Point) const {
-    // Normal is the normalized vector from the center to the point on the surface
-    vector normal = Point - m_Center;
-    return normal.Normalize(); // Or !normal if operator! is preferred
+    // Calculate the geometric normal for the sphere
+    vector geometric_normal = Point - m_Center;
+    geometric_normal.Normalize(); // Or: geometric_normal = !geometric_normal;
+
+    // Delegate to the texture to allow modulation (e.g., bump mapping)
+    // Ensure Texture() method is available and returns a valid CTexture*
+    if (Texture()) { // Add a check for null texture pointer
+        return Texture()->Normal(Point, geometric_normal);
+    } else {
+        // Fallback if no texture or texture doesn't modulate
+        return geometric_normal; 
+    }
 }
 
