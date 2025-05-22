@@ -16,13 +16,13 @@ public: // Constructor
 
 public: // Services
 
-	virtual CColor 	Illuminate(const CRay::DifferentialArea& dA, const CRay& V) const;
-	virtual	vector 	Loc() const {return m_Center;}
-	virtual int     NoShade() const { return FALSE; }
+	virtual CColor 	Illuminate(const CRay::DifferentialArea& dA, const CRay& V) const override;
+	virtual	vector 	Loc() const override {return m_Center;}
+	virtual int     NoShade() const override { return FALSE; }
 	
-	virtual void Translate(vector T) { (void)T; }
-	virtual void Rotate(vector R)    { (void)R; }
-	virtual void Scale(vector S)     { (void)S; }
+	virtual void Translate(vector T) override { (void)T; }
+	virtual void Rotate(vector R)    override { (void)R; }
+	virtual void Scale(vector S)     override { (void)S; }
 
 //	virtual void Serialize(CArchive A);
 

@@ -22,13 +22,13 @@ public: // Constructor
 
 public: // Services
 
-	virtual Intersection Intersect(CRay& Ray) const;
+	virtual Intersection Intersect(CRay& Ray) const override;
 	virtual vector Normal(const vector& Point) const override;
-    virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept;
+    virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept override;
 	
-	virtual void Translate(vector T);
-	virtual void Scale(vector S);
-	virtual void Rotate(vector R);
+	virtual void Translate(vector T) override;
+	virtual void Scale(vector S) override;
+	virtual void Rotate(vector R) override;
 
 //	virtual void Serialize(CArchive A);
 

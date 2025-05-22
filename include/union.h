@@ -19,9 +19,9 @@ public: // Constructor
 
 public: // Services
 
-	virtual Intersection Intersect(CRay& Ray) const;
+	virtual Intersection Intersect(CRay& Ray) const override;
     // Returns true if point is inside union (with optional flip)
-    virtual bool	Inside(const vector& a, const CPrimitive* C) const noexcept;
+    virtual bool	Inside(const vector& a, const CPrimitive* C) const noexcept override;
 
 //	virtual void Serialize(CArchive A);
 

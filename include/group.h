@@ -18,7 +18,7 @@ class CGroup : public CPrimitive {
     public:
         // B: bounding primitive, flipInside=false
         CGroup(CPrimitive* B) noexcept;
-        virtual ~CGroup();
+        virtual ~CGroup() override;
     protected:
         // B: bounding primitive; flipInside=true inverts inside test
         CGroup(bool flipInside, CPrimitive* B) noexcept;
@@ -26,14 +26,14 @@ class CGroup : public CPrimitive {
 
 public: // Services
 
-	virtual Intersection Intersect(CRay& Ray) const;
-	virtual vector Normal(const vector& Point) const;
+	virtual Intersection Intersect(CRay& Ray) const override;
+	virtual vector Normal(const vector& Point) const override;
 	// Returns true if point is inside any member primitive (excluding C)
-	virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept;
+	virtual bool Inside(const vector& Point, const CPrimitive*) const noexcept override;
 	
-	virtual void Translate(CVector T);
-	virtual void Scale(CVector S);
-	virtual void Rotate(CVector R);
+	virtual void Translate(CVector T) override;
+	virtual void Scale(CVector S) override;
+	virtual void Rotate(CVector R) override;
 
 //	virtual void Serialize(CArchive A);
 
