@@ -16,31 +16,42 @@
 #include <iostream>
 
 #define RYML_SINGLE_HDR_DEFINE_NOW
-#include "ryml_all.hpp"
+#include "ryml_all.hpp" // This should include necessary rapidyaml headers for operator>>
 
-std::string getString(const c4::yml::NodeRef& nodeRef) {
-    auto val = nodeRef.val();
-    return std::string(val.str, val.len);
-}
+// getString function is removed
 
 CVector getVector(const c4::yml::NodeRef& nodeRef) {
-    auto xs = nodeRef[0].val();
-    auto ys = nodeRef[1].val();
-    auto zs = nodeRef[2].val();
-    auto x = std::stof(std::string(xs.str, xs.len));
-    auto y = std::stof(std::string(ys.str, ys.len));
-    auto z = std::stof(std::string(zs.str, zs.len));
-    return CVector(x,y,z);
+    float x, y, z;
+    if (nodeRef.is_seq() && nodeRef.num_children() == 3) {
+        nodeRef[0] >> x;
+        nodeRef[1] >> y;
+        nodeRef[2] >> z;
+        return CVector(x, y, z);
+    }
+    // It's good practice to output the key of the problematic node if available
+    // Convert key to std::string for printing, if it exists
+    std::string key_name = "unknown_key";
+    if (nodeRef.has_key()) {
+        key_name = std::string(nodeRef.key().str, nodeRef.key().len);
+    }
+    std::cerr << "Error: YAML node '" << key_name << "' is not a valid 3-element sequence for a vector." << std::endl;
+    return CVector(); // Default CVector
 }
 
 CColor getColor(const c4::yml::NodeRef& nodeRef) {
-    auto xs = nodeRef[0].val();
-    auto ys = nodeRef[1].val();
-    auto zs = nodeRef[2].val();
-    auto x = std::stof(std::string(xs.str, xs.len));
-    auto y = std::stof(std::string(ys.str, ys.len));
-    auto z = std::stof(std::string(zs.str, zs.len));
-    return CColor(x,y,z);
+    float r, g, b;
+    if (nodeRef.is_seq() && nodeRef.num_children() == 3) {
+        nodeRef[0] >> r;
+        nodeRef[1] >> g;
+        nodeRef[2] >> b;
+        return CColor(r, g, b);
+    }
+    std::string key_name = "unknown_key";
+    if (nodeRef.has_key()) {
+        key_name = std::string(nodeRef.key().str, nodeRef.key().len);
+    }
+    std::cerr << "Error: YAML node '" << key_name << "' is not a valid 3-element sequence for a color." << std::endl;
+    return CColor(); // Default CColor
 }
 
 bool SceneLoader::load(const std::string& filename,
@@ -68,8 +79,7 @@ bool SceneLoader::load(const std::string& filename,
     if (root.has_child("globals")) {
         auto gl = root["globals"];
         if (gl.has_child("recursion_depth")) {
-            auto cs = gl["recursion_depth"].val();
-            studio.RecurseDepth = std::stoi(std::string(cs.str, cs.len));
+            gl["recursion_depth"] >> studio.RecurseDepth;
         }
     }
 
@@ -79,9 +89,11 @@ bool SceneLoader::load(const std::string& filename,
     if (root.has_child("textures")) {
         auto textures = root["textures"];
         for (auto tex : textures) {
-            std::string type = getString(tex["type"]);
+            std::string type;
+            tex["type"] >> type;
             if (type == "solid") {
-                auto name = getString(tex["name"]);
+                std::string name;
+                tex["name"] >> name;
                 auto color = getColor(tex["color"]);
                 auto texture = new CTexture(color);
                 studio.Textures.emplace_back(texture);
@@ -94,14 +106,16 @@ bool SceneLoader::load(const std::string& filename,
         auto objects = root["objects"];
         for (auto obj : objects) {
             auto tval = obj["type"];
-            auto type = getString(tval);
+            std::string type;
+            tval >> type;
             if (type == "plane") {
                 auto point = getVector(obj["point"]);
                 auto normal = getVector(obj["normal"]);
-                auto texture = getString(obj["texture"]);
-                auto it = textureMap.find(texture);
+                std::string texture_name;
+                obj["texture"] >> texture_name;
+                auto it = textureMap.find(texture_name);
                 if (it == textureMap.end()) {
-                    std::cerr << "Texture '" << texture << "' not found\n";
+                    std::cerr << "Texture '" << texture_name << "' not found\n";
                     continue;
                 }
                 CPlane* P = new CPlane(point, normal, it->second, nullptr, false);
@@ -109,11 +123,13 @@ bool SceneLoader::load(const std::string& filename,
 
             } else if (type == "sphere") {
                 auto center = getVector(obj["center"]);
-                auto radius = std::stod(getString(obj["radius"]));
-                auto texture = getString(obj["texture"]);
-                auto it = textureMap.find(texture);
+                double radius;
+                obj["radius"] >> radius;
+                std::string texture_name;
+                obj["texture"] >> texture_name;
+                auto it = textureMap.find(texture_name);
                 if (it == textureMap.end()) {
-                    std::cerr << "Texture '" << texture << "' not found\n";
+                    std::cerr << "Texture '" << texture_name << "' not found\n";
                     continue;
                 }
                 CSphere* sph = new CSphere(radius, center, it->second, nullptr, false);
@@ -133,12 +149,11 @@ bool SceneLoader::load(const std::string& filename,
     if (root.has_child("output")) {
         auto out = root["output"];
         if (out.has_child("filename")) {
-            auto cs = out["filename"].val();
-            out_fname = std::string(cs.str, cs.len);
+            out["filename"] >> out_fname;
         }
         if (out.has_child("format")) {
-            auto cs = out["format"].val();
-            auto fmt = std::string(cs.str, cs.len);
+            std::string fmt;
+            out["format"] >> fmt;
             if (fmt == "PNG") imgType = CStorage::PNG;
             else if (fmt == "JPG" || fmt == "JPEG") imgType = CStorage::JPG;
             else if (fmt == "TGA") imgType = CStorage::TGA;
@@ -146,10 +161,14 @@ bool SceneLoader::load(const std::string& filename,
         }
         if (out.has_child("resolution")) {
             auto res = out["resolution"];
-            auto cs0 = res[0].val();
-            auto cs1 = res[1].val();
-            width  = std::stoi(std::string(cs0.str, cs0.len));
-            height = std::stoi(std::string(cs1.str, cs1.len));
+            // Ensure resolution is a sequence with 2 elements before deserializing
+            if (res.is_seq() && res.num_children() == 2) {
+                res[0] >> width;
+                res[1] >> height;
+            } else {
+                 std::cerr << "Error: Output resolution is not a valid 2-element sequence." << std::endl;
+                 // Keep default width/height or handle error as appropriate
+            }
         }
     }
 
@@ -160,41 +179,26 @@ bool SceneLoader::load(const std::string& filename,
         vector position(0,0,0), look_at(0,0,1), up(0,1,0);
         double fov_h = 40.0, fov_v = 40.0;
         if (cam.has_child("position")) {
-            auto seq = cam["position"];
-            auto c0 = seq[0].val();
-            auto c1 = seq[1].val();
-            auto c2 = seq[2].val();
-            position = vector(
-                std::stod(std::string(c0.str, c0.len)),
-                std::stod(std::string(c1.str, c1.len)),
-                std::stod(std::string(c2.str, c2.len)));
+            // getVector will handle parsing and errors for position
+            position = getVector(cam["position"]);
         }
         if (cam.has_child("look_at")) {
-            auto seq = cam["look_at"];
-            auto c0 = seq[0].val();
-            auto c1 = seq[1].val();
-            auto c2 = seq[2].val();
-            look_at = vector(
-                std::stod(std::string(c0.str, c0.len)),
-                std::stod(std::string(c1.str, c1.len)),
-                std::stod(std::string(c2.str, c2.len)));
+            // getVector will handle parsing and errors for look_at
+            look_at = getVector(cam["look_at"]);
         }
         if (cam.has_child("up")) {
-            auto seq = cam["up"];
-            auto c0 = seq[0].val();
-            auto c1 = seq[1].val();
-            auto c2 = seq[2].val();
-            up = vector(
-                std::stod(std::string(c0.str, c0.len)),
-                std::stod(std::string(c1.str, c1.len)),
-                std::stod(std::string(c2.str, c2.len)));
+            // getVector will handle parsing and errors for up
+            up = getVector(cam["up"]);
         }
         if (cam.has_child("fov")) {
-            auto seq = cam["fov"];
-            auto c0 = seq[0].val();
-            auto c1 = seq[1].val();
-            fov_h = std::stod(std::string(c0.str, c0.len));
-            fov_v = std::stod(std::string(c1.str, c1.len));
+            auto fov_node = cam["fov"];
+            if (fov_node.is_seq() && fov_node.num_children() == 2) {
+                fov_node[0] >> fov_h;
+                fov_node[1] >> fov_v;
+            } else {
+                std::cerr << "Error: Camera FOV is not a valid 2-element sequence." << std::endl;
+                // Keep default fov_h, fov_v or handle error as appropriate
+            }
         }
         // build camera
         CLine ray_dir(look_at - position, position);
