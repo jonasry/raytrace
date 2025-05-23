@@ -3,12 +3,10 @@
 #include "storage.h"
 #include "color.h"
 #include <cstdlib>
+#include <iostream>
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#if defined VERBOSE
-	#include <iostream.h>
-#endif
 
 CStorage::CStorage(const std::string& fileName, ImgClass FileType,
 		 scoord X_Resolution, scoord Y_Resolution)
@@ -27,9 +25,7 @@ CStorage::CStorage(const std::string& fileName, ImgClass FileType,
 	m_ScanBuffer.resize(X_Resolution);
 	m_ScanLineBuffer.resize(X_Resolution * Y_Resolution * 3);
 
-	#if defined VERBOSE
-		cerr << "Storing on file " << FileName << '\n' ;
-	#endif
+	std::cerr << "Writing to " << FileName << '\n' ;
 }
 
 CStorage::~CStorage() {

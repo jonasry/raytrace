@@ -18,6 +18,11 @@
 #define RYML_SINGLE_HDR_DEFINE_NOW
 #include "ryml_all.hpp"
 
+std::string getString(const c4::yml::NodeRef& nodeRef) {
+    auto val = nodeRef.val();
+    return std::string(val.str, val.len);
+}
+
 CVector getVector(const c4::yml::NodeRef& nodeRef) {
     auto xs = nodeRef[0].val();
     auto ys = nodeRef[1].val();
@@ -74,14 +79,13 @@ bool SceneLoader::load(const std::string& filename,
     if (root.has_child("textures")) {
         auto textures = root["textures"];
         for (auto tex : textures) {
-            std::string type = tex["type"].val().str;
+            std::string type = getString(tex["type"]);
             if (type == "solid") {
-                auto name = tex["name"];
-                auto color = tex["color"];
-                auto cvec = getColor(color);
-                auto texture = new CTexture(cvec);
+                auto name = getString(tex["name"]);
+                auto color = getColor(tex["color"]);
+                auto texture = new CTexture(color);
                 studio.Textures.emplace_back(texture);
-                textureMap[name.val().str] = texture;
+                textureMap[name] = texture;
             }
         }
     }
@@ -89,26 +93,30 @@ bool SceneLoader::load(const std::string& filename,
     if (root.has_child("objects")) {
         auto objects = root["objects"];
         for (auto obj : objects) {
-            std::string type = obj["type"].val().str;
+            auto tval = obj["type"];
+            auto type = getString(tval);
             if (type == "plane") {
-                auto point = obj["point"];
-                auto normal = obj["normal"];
-                auto texture = obj["texture"];
-                auto vvec = getVector(point);
-                auto nvec = getVector(normal);
-                auto it = textureMap.find(texture.val().str);
-                CPlane* P = new CPlane(vvec, nvec, it->second, nullptr, false);
+                auto point = getVector(obj["point"]);
+                auto normal = getVector(obj["normal"]);
+                auto texture = getString(obj["texture"]);
+                auto it = textureMap.find(texture);
+                if (it == textureMap.end()) {
+                    std::cerr << "Texture '" << texture << "' not found\n";
+                    continue;
+                }
+                CPlane* P = new CPlane(point, normal, it->second, nullptr, false);
                 studio.Objects.Objects.push_back(P);
-            
+
             } else if (type == "sphere") {
-                auto centerNode = obj["center"];
-                auto radiusNode = obj["radius"];
-                auto textureNode = obj["texture"];
-                auto cvec = getVector(centerNode);
-                auto rval = radiusNode.val();
-                auto radius = std::stod(std::string(rval.str, rval.len));
-                auto texIt = textureMap.find(textureNode.val().str);
-                CSphere* sph = new CSphere(radius, cvec, texIt->second, nullptr, false);
+                auto center = getVector(obj["center"]);
+                auto radius = std::stod(getString(obj["radius"]));
+                auto texture = getString(obj["texture"]);
+                auto it = textureMap.find(texture);
+                if (it == textureMap.end()) {
+                    std::cerr << "Texture '" << texture << "' not found\n";
+                    continue;
+                }
+                CSphere* sph = new CSphere(radius, center, it->second, nullptr, false);
                 studio.Objects.Objects.push_back(sph);
             }
         }

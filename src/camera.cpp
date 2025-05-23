@@ -4,6 +4,7 @@
 //	revision:   A
 
 #include <stdlib.h>
+#include <iostream>
 
 #include "camera.h"
 #include "rtdefs.h"
@@ -50,6 +51,8 @@ int CCamera::Snap() {
 	cerr << '\n';
 
 #endif
+
+	std::cerr << "Rendering " << m_Studio->Objects.Objects.size() << " objects" << std::endl;
 
 	//	Scan through all lines of the screen and save
 	//	each line.

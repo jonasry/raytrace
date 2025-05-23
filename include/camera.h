@@ -10,11 +10,10 @@
 #include "color.h"
 #include "optic.h"
 #include "storage.h"
+#include "studio.h"
 #include <string>
 
 // using namespace std; // removed to avoid std::vector conflict
-
-class CStudio;
 
 class CCamera : public COptic {
 

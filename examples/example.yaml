@@ -17,14 +17,17 @@ camera:
 textures:
   - name: white
     type: solid
-    color: [1,1,0]
+    color: [1,1,1]
+  - name: green
+    type: solid
+    color: [0,2,0]
 
 objects:
   - id: floor
     type: plane
     point: [0,0,0.01]
     normal: [0,0,1]
-    texture: white
+    texture: green
   - id: ball
     type: sphere
     center: [1,1,1]
