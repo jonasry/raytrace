@@ -96,8 +96,8 @@ CColor CCamera::Sample(scoord X_Coord, scoord Y_Coord) {
 	//	tracing rays in object/texture-space.
                                                                   
 	CColor sample(0,0,0);
-            
-	unsigned int num=1;  // rand()%8+1;
+
+	unsigned int num=m_Studio->Oversampling;
 	
 	for (unsigned int i=0; i<num; i++) {
 

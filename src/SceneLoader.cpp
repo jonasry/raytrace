@@ -81,6 +81,17 @@ bool SceneLoader::load(const std::string& filename,
         if (gl.has_child("recursion_depth")) {
             gl["recursion_depth"] >> studio.RecurseDepth;
         }
+        if (gl.has_child("oversampling")) {
+            int oversampling;
+            gl["oversampling"] >> oversampling;
+            if (oversampling >= 1) {
+                studio.Oversampling = oversampling;
+            }
+        }
+        if (gl.has_child("background_color")) {
+            auto color = getColor(gl["background_color"]);
+            studio.BackgroundColor = color;
+        }
     }
 
     // 2. Setup default scene (textures, lights, objects)
@@ -161,13 +172,11 @@ bool SceneLoader::load(const std::string& filename,
         }
         if (out.has_child("resolution")) {
             auto res = out["resolution"];
-            // Ensure resolution is a sequence with 2 elements before deserializing
             if (res.is_seq() && res.num_children() == 2) {
                 res[0] >> width;
                 res[1] >> height;
             } else {
                  std::cerr << "Error: Output resolution is not a valid 2-element sequence." << std::endl;
-                 // Keep default width/height or handle error as appropriate
             }
         }
     }
@@ -179,15 +188,12 @@ bool SceneLoader::load(const std::string& filename,
         vector position(0,0,0), look_at(0,0,1), up(0,1,0);
         double fov_h = 40.0, fov_v = 40.0;
         if (cam.has_child("position")) {
-            // getVector will handle parsing and errors for position
             position = getVector(cam["position"]);
         }
         if (cam.has_child("look_at")) {
-            // getVector will handle parsing and errors for look_at
             look_at = getVector(cam["look_at"]);
         }
         if (cam.has_child("up")) {
-            // getVector will handle parsing and errors for up
             up = getVector(cam["up"]);
         }
         if (cam.has_child("fov")) {
@@ -197,7 +203,6 @@ bool SceneLoader::load(const std::string& filename,
                 fov_node[1] >> fov_v;
             } else {
                 std::cerr << "Error: Camera FOV is not a valid 2-element sequence." << std::endl;
-                // Keep default fov_h, fov_v or handle error as appropriate
             }
         }
         // build camera

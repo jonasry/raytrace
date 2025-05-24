@@ -9,7 +9,9 @@ CStudio::CStudio(int depth)
     : Lights()
     , Textures()
     , Objects(0)
+    , BackgroundColor(CColor(0,0,0))
     , RecurseDepth(depth)
+    , Oversampling(1)
 {
 }
 

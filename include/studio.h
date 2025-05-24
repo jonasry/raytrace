@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include "group.h"
+#include "color.h"
 
 class CLight;
 class CTexture;
@@ -18,7 +19,9 @@ public:
     std::vector<std::unique_ptr<CLight>> Lights;
     std::vector<std::unique_ptr<CTexture>> Textures;
     CGroup Objects;
+    CColor BackgroundColor;
     int RecurseDepth;
+    int Oversampling;
 };
 
 #endif // __STUDIO_H__

@@ -26,7 +26,7 @@ CColor CRay::Sample(const CStudio* Studio, int RecurseLevel) {
 	CRTBase::Intersection I = Studio->Objects.Intersect(*this);
 
 	if (I.IntersectedPrimitive==0)		// 	The ray didn't intersect.
-		return CColor(.2,.55,.85)*.5;  	//  Background color
+		return Studio->BackgroundColor;  	//  Background color
 
 	//	Replace the intersected object with a small differential plane:
 

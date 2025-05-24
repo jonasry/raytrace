@@ -1,5 +1,6 @@
 globals:
   recursion_depth: 5
+  oversampling: 4
   background_color: [0.2,0.55,0.85]
 
 output:
