@@ -14,7 +14,7 @@ class CColor {
 
 public: // Constructors:
 
-	CColor() {}
+	CColor() : m_Red(0.0), m_Green(0.0), m_Blue(0.0) {}
 	CColor(double r,double g,double b);
 	CColor(const CColor& C);
 	~CColor();

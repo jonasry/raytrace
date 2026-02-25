@@ -10,7 +10,7 @@ class CVector {
 
 public:	// Constructors
 
-	CVector	() : x(d[0]), y(d[1]), z(d[2]) {}
+	CVector	() : x(d[0]), y(d[1]), z(d[2]) { x = 0.0; y = 0.0; z = 0.0; }
 	CVector (double a, double b, double c) : x(d[0]), y(d[1]), z(d[2]) { x=a; y=b; z=c; }
 	CVector	(const CVector& v) : x(d[0]), y(d[1]), z(d[2]) { x=v.x; y=v.y; z=v.z; }
 	CVector (double D[3]) : x(d[0]), y(d[1]), z(d[2]) {x=D[0]; y=D[1]; z=D[2]; }
