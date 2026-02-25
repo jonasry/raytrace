@@ -98,15 +98,27 @@ CColor CCamera::Sample(scoord X_Coord, scoord Y_Coord) {
 	CColor sample(0,0,0);
 
 	unsigned int num=m_Studio->Oversampling;
-	
+		
 	for (unsigned int i=0; i<num; i++) {
 
 		double q = double(i/2)-0.5; // double(rand())/RAND_MAX-.5;
 		double p = double(i%2)-0.5; // double(rand())/RAND_MAX-.5;
+		const bool hasXSpan = m_Frame.m_ScreenSize.X > 1;
+		const bool hasYSpan = m_Frame.m_ScreenSize.Y > 1;
+
+		double sx = 0.0;
+		if (hasXSpan) {
+			sx = 2.0 * ((double(X_Coord) + q) / double(m_Frame.m_ScreenSize.X - 1)) - 1.0;
+		}
+
+		double sy = 0.0;
+		if (hasYSpan) {
+			sy = 2.0 * ((double(Y_Coord) - p) / double(m_Frame.m_ScreenSize.Y - 1)) - 1.0;
+		}
                                                                   
-		vector d = ( 2 * ( (double(X_Coord)+q) / (m_Frame.m_ScreenSize.X-1) ) - 1 ) * U
-			     + ( 2 * ( (double(Y_Coord)-p) / (m_Frame.m_ScreenSize.Y-1) ) - 1 ) * V
-		    	 + Y;
+		vector d = sx * U
+			     + sy * V
+			    	  + Y;
 
 		CRay Ray(d,LOC);
 		
