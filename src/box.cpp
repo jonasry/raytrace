@@ -107,12 +107,12 @@ bool CBox::Inside(const vector& Point, const CPrimitive*) const noexcept {
 	m_Transform.invTransPoint(point);
 
     for (int i = 0; i < 3; i++) {
-        if (Point[i] < m_minB[i] || Point[i] > m_maxB[i]) {
+        if (point[i] < m_minB[i] || point[i] > m_maxB[i]) {
             inside = false;
             break;
         }
     }
-    return inside;
+    return inside != m_FlipInside;
 
 }
 
