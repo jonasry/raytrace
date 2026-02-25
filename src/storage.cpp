@@ -24,6 +24,7 @@ CStorage::CStorage(const std::string& fileName, ImgClass FileType,
 	// allocate scan buffers using STL vectors
 	m_ScanBuffer.resize(X_Resolution);
 	m_ScanLineBuffer.resize(X_Resolution * Y_Resolution * 3);
+	m_HDRScanLineBuffer.resize(X_Resolution * Y_Resolution * 3);
 
 	std::cerr << "Writing to " << FileName << '\n' ;
 }
@@ -43,13 +44,23 @@ scoord CStorage::StoreScanline(scoord lineNo, CColor* line) {
 	int offset = lineNo * m_ScreenSize.X * 3;
 
 	for (i = 0; i < m_ScreenSize.X; i++) {
+		float fr = static_cast<float>(line[i].Red());
+		float fg = static_cast<float>(line[i].Green());
+		float fb = static_cast<float>(line[i].Blue());
+		if (fr < 0.0f) fr = 0.0f;
+		if (fg < 0.0f) fg = 0.0f;
+		if (fb < 0.0f) fb = 0.0f;
+
 		short rr = short(floor(double(line[i].Red()) * 255.0 + 0.5));
 		short gg = short(floor(double(line[i].Green()) * 255.0 + 0.5));
 		short bb = short(floor(double(line[i].Blue()) * 255.0 + 0.5));
-	
+		
 		m_ScanLineBuffer[offset + i * 3 + 0] = (rr < 255) ? (BYTE)rr : 255;
 		m_ScanLineBuffer[offset + i * 3 + 1] = (gg < 255) ? (BYTE)gg : 255;
 		m_ScanLineBuffer[offset + i * 3 + 2] = (bb < 255) ? (BYTE)bb : 255;
+		m_HDRScanLineBuffer[offset + i * 3 + 0] = fr;
+		m_HDRScanLineBuffer[offset + i * 3 + 1] = fg;
+		m_HDRScanLineBuffer[offset + i * 3 + 2] = fb;
 	}
 
 	return i;
@@ -75,11 +86,13 @@ int CStorage::StorePNG() {
 }
 
 int CStorage::StoreTGA() {
-	return 0; //stbi_write_tga(FileName, m_ScreenSize.X, m_ScreenSize.Y, 3, m_ScanLineBuffer, m_ScreenSize.X * 3);
+	return stbi_write_tga(FileName.c_str(), m_ScreenSize.X, m_ScreenSize.Y, 3,
+	                      m_ScanLineBuffer.data());
 }
 
 int CStorage::StoreHDR() {
-	return 0; //stbi_write_hdr(FileName, m_ScreenSize.X, m_ScreenSize.Y, 3, m_ScanLineBuffer, m_ScreenSize.X * 3);
+	return stbi_write_hdr(FileName.c_str(), m_ScreenSize.X, m_ScreenSize.Y, 3,
+	                      m_HDRScanLineBuffer.data());
 }
 
 int CStorage::StoreJPG() {

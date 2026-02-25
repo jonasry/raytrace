@@ -51,11 +51,12 @@ public:
     std::vector<CColor> m_ScanBuffer;
 
 private:// Data
-
+	
     // full path (including output directory)
     std::string FileName;
 	const ImgClass IC;
     std::vector<BYTE> m_ScanLineBuffer;
+    std::vector<float> m_HDRScanLineBuffer;
 
 private:// Methods for storing
 
