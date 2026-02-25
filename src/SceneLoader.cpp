@@ -18,41 +18,83 @@
 #define RYML_SINGLE_HDR_DEFINE_NOW
 #include "ryml_all.hpp" // This should include necessary rapidyaml headers for operator>>
 
-// getString function is removed
-
-CVector getVector(const c4::yml::NodeRef& nodeRef) {
-    float x, y, z;
-    if (nodeRef.is_seq() && nodeRef.num_children() == 3) {
-        nodeRef[0] >> x;
-        nodeRef[1] >> y;
-        nodeRef[2] >> z;
-        return CVector(x, y, z);
+namespace {
+std::string keyName(const c4::yml::ConstNodeRef& node, const char* fallback = "unknown") {
+    if (!node.has_key()) {
+        return fallback;
     }
-    // It's good practice to output the key of the problematic node if available
-    // Convert key to std::string for printing, if it exists
-    std::string key_name = "unknown_key";
-    if (nodeRef.has_key()) {
-        key_name = std::string(nodeRef.key().str, nodeRef.key().len);
-    }
-    std::cerr << "Error: YAML node '" << key_name << "' is not a valid 3-element sequence for a vector." << std::endl;
-    return CVector(); // Default CVector
+    return std::string(node.key().str, node.key().len);
 }
 
-CColor getColor(const c4::yml::NodeRef& nodeRef) {
-    float r, g, b;
-    if (nodeRef.is_seq() && nodeRef.num_children() == 3) {
-        nodeRef[0] >> r;
-        nodeRef[1] >> g;
-        nodeRef[2] >> b;
-        return CColor(r, g, b);
+template <typename T>
+bool readRequiredScalar(const c4::yml::ConstNodeRef& parent, const char* key, T& out, const char* context) {
+    if (!parent.has_child(key)) {
+        std::cerr << "Error: missing required field '" << key << "' in " << context << ".\n";
+        return false;
     }
-    std::string key_name = "unknown_key";
-    if (nodeRef.has_key()) {
-        key_name = std::string(nodeRef.key().str, nodeRef.key().len);
+    auto node = parent[key];
+    if (!node.readable()) {
+        std::cerr << "Error: field '" << key << "' in " << context << " is not readable.\n";
+        return false;
     }
-    std::cerr << "Error: YAML node '" << key_name << "' is not a valid 3-element sequence for a color." << std::endl;
-    return CColor(); // Default CColor
+    node >> out;
+    return true;
 }
+
+bool readVectorNode(const c4::yml::ConstNodeRef& node, CVector& out) {
+    if (!node.is_seq() || node.num_children() != 3) {
+        std::cerr << "Error: YAML node '" << keyName(node) << "' is not a valid 3-element sequence for a vector.\n";
+        return false;
+    }
+    if (!node[0].readable() || !node[1].readable() || !node[2].readable()) {
+        std::cerr << "Error: YAML vector node '" << keyName(node) << "' contains unreadable values.\n";
+        return false;
+    }
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    node[0] >> x;
+    node[1] >> y;
+    node[2] >> z;
+    out = CVector(x, y, z);
+    return true;
+}
+
+bool readColorNode(const c4::yml::ConstNodeRef& node, CColor& out) {
+    if (!node.is_seq() || node.num_children() != 3) {
+        std::cerr << "Error: YAML node '" << keyName(node) << "' is not a valid 3-element sequence for a color.\n";
+        return false;
+    }
+    if (!node[0].readable() || !node[1].readable() || !node[2].readable()) {
+        std::cerr << "Error: YAML color node '" << keyName(node) << "' contains unreadable values.\n";
+        return false;
+    }
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
+    node[0] >> r;
+    node[1] >> g;
+    node[2] >> b;
+    out = CColor(r, g, b);
+    return true;
+}
+
+bool readRequiredVector(const c4::yml::ConstNodeRef& parent, const char* key, CVector& out, const char* context) {
+    if (!parent.has_child(key)) {
+        std::cerr << "Error: missing required field '" << key << "' in " << context << ".\n";
+        return false;
+    }
+    return readVectorNode(parent[key], out);
+}
+
+bool readRequiredColor(const c4::yml::ConstNodeRef& parent, const char* key, CColor& out, const char* context) {
+    if (!parent.has_child(key)) {
+        std::cerr << "Error: missing required field '" << key << "' in " << context << ".\n";
+        return false;
+    }
+    return readColorNode(parent[key], out);
+}
+} // namespace
 
 bool SceneLoader::load(const std::string& filename,
                        CStudio& studio,
@@ -89,8 +131,10 @@ bool SceneLoader::load(const std::string& filename,
             }
         }
         if (gl.has_child("background_color")) {
-            auto color = getColor(gl["background_color"]);
-            studio.BackgroundColor = color;
+            CColor color(0, 0, 0);
+            if (readColorNode(gl["background_color"], color)) {
+                studio.BackgroundColor = color;
+            }
         }
     }
 
@@ -101,14 +145,23 @@ bool SceneLoader::load(const std::string& filename,
         auto textures = root["textures"];
         for (auto tex : textures) {
             std::string type;
-            tex["type"] >> type;
+            if (!readRequiredScalar(tex, "type", type, "texture")) {
+                continue;
+            }
             if (type == "solid") {
                 std::string name;
-                tex["name"] >> name;
-                auto color = getColor(tex["color"]);
+                CColor color(0, 0, 0);
+                if (!readRequiredScalar(tex, "name", name, "texture")) {
+                    continue;
+                }
+                if (!readRequiredColor(tex, "color", color, "texture")) {
+                    continue;
+                }
                 auto texture = new CTexture(color);
                 studio.Textures.emplace_back(texture);
                 textureMap[name] = texture;
+            } else {
+                std::cerr << "Warning: unsupported texture type '" << type << "'.\n";
             }
         }
     }
@@ -116,14 +169,23 @@ bool SceneLoader::load(const std::string& filename,
     if (root.has_child("objects")) {
         auto objects = root["objects"];
         for (auto obj : objects) {
-            auto tval = obj["type"];
             std::string type;
-            tval >> type;
+            if (!readRequiredScalar(obj, "type", type, "object")) {
+                continue;
+            }
             if (type == "plane") {
-                auto point = getVector(obj["point"]);
-                auto normal = getVector(obj["normal"]);
+                CVector point(0, 0, 0);
+                CVector normal(0, 0, 1);
                 std::string texture_name;
-                obj["texture"] >> texture_name;
+                if (!readRequiredVector(obj, "point", point, "plane object")) {
+                    continue;
+                }
+                if (!readRequiredVector(obj, "normal", normal, "plane object")) {
+                    continue;
+                }
+                if (!readRequiredScalar(obj, "texture", texture_name, "plane object")) {
+                    continue;
+                }
                 auto it = textureMap.find(texture_name);
                 if (it == textureMap.end()) {
                     std::cerr << "Texture '" << texture_name << "' not found\n";
@@ -133,11 +195,18 @@ bool SceneLoader::load(const std::string& filename,
                 studio.Objects.Objects.push_back(P);
 
             } else if (type == "sphere") {
-                auto center = getVector(obj["center"]);
-                double radius;
-                obj["radius"] >> radius;
+                CVector center(0, 0, 0);
+                double radius = 0.0;
                 std::string texture_name;
-                obj["texture"] >> texture_name;
+                if (!readRequiredVector(obj, "center", center, "sphere object")) {
+                    continue;
+                }
+                if (!readRequiredScalar(obj, "radius", radius, "sphere object")) {
+                    continue;
+                }
+                if (!readRequiredScalar(obj, "texture", texture_name, "sphere object")) {
+                    continue;
+                }
                 auto it = textureMap.find(texture_name);
                 if (it == textureMap.end()) {
                     std::cerr << "Texture '" << texture_name << "' not found\n";
@@ -145,6 +214,8 @@ bool SceneLoader::load(const std::string& filename,
                 }
                 CSphere* sph = new CSphere(radius, center, it->second, nullptr, false);
                 studio.Objects.Objects.push_back(sph);
+            } else {
+                std::cerr << "Warning: unsupported object type '" << type << "'.\n";
             }
         }
     	SetupLights(studio);
@@ -188,13 +259,13 @@ bool SceneLoader::load(const std::string& filename,
         vector position(0,0,0), look_at(0,0,1), up(0,1,0);
         double fov_h = 40.0, fov_v = 40.0;
         if (cam.has_child("position")) {
-            position = getVector(cam["position"]);
+            readVectorNode(cam["position"], position);
         }
         if (cam.has_child("look_at")) {
-            look_at = getVector(cam["look_at"]);
+            readVectorNode(cam["look_at"], look_at);
         }
         if (cam.has_child("up")) {
-            up = getVector(cam["up"]);
+            readVectorNode(cam["up"], up);
         }
         if (cam.has_child("fov")) {
             auto fov_node = cam["fov"];
