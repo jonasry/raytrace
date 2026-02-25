@@ -16,7 +16,7 @@ CRTBase::Intersection CIntersection::Intersect(CRay& Ray) const {
 
 		vector a = L.PointAt(I.Distance);
 
-		if (Inside(a,I.IntersectedObject)^m_FlipInside) {
+		if (Inside(a, I.IntersectedObject)) {
 			I.Distance=(a-Ray.Loc()).NormOf();
 			return I;
 		}
