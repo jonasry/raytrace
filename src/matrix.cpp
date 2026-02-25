@@ -117,12 +117,12 @@ const Matrix& Matrix::operator *=(const Matrix& M) {
 
   //  this->print("this");
 
-  for (int i=0; i<4; i++) 
-    for (int j=0; j<4; j++) {
-      Result.m_Body[i][j]=0.0;
-      for (int k=0; k<4; k++)
-	Result.m_Body[i][j]=this->m_Body[i][k] * M.m_Body[k][j];
-    }
+	  for (int i=0; i<4; i++) 
+	    for (int j=0; j<4; j++) {
+	      Result.m_Body[i][j]=0.0;
+	      for (int k=0; k<4; k++)
+		      Result.m_Body[i][j] += this->m_Body[i][k] * M.m_Body[k][j];
+	    }
 
   for (int i=0; i<4; i++) 
     for (int j=0; j<4; j++)
