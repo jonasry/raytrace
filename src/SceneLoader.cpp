@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <limits>
 
 #define RYML_SINGLE_HDR_DEFINE_NOW
 #include "ryml_all.hpp" // This should include necessary rapidyaml headers for operator>>
@@ -244,10 +245,34 @@ bool SceneLoader::load(const std::string& filename,
         if (out.has_child("resolution")) {
             auto res = out["resolution"];
             if (res.is_seq() && res.num_children() == 2) {
-                res[0] >> width;
-                res[1] >> height;
+                if (!res[0].readable() || !res[1].readable()) {
+                    std::cerr << "Error: Output resolution values are not readable.\n";
+                    return false;
+                }
+
+                int requestedWidth = 0;
+                int requestedHeight = 0;
+                res[0] >> requestedWidth;
+                res[1] >> requestedHeight;
+
+                if (requestedWidth <= 0 || requestedHeight <= 0) {
+                    std::cerr << "Error: Output resolution must be positive. Got ["
+                              << requestedWidth << ", " << requestedHeight << "].\n";
+                    return false;
+                }
+
+                constexpr int kMaxScoord = std::numeric_limits<scoord>::max();
+                if (requestedWidth > kMaxScoord || requestedHeight > kMaxScoord) {
+                    std::cerr << "Error: Output resolution exceeds max supported size (" << kMaxScoord
+                              << "). Got [" << requestedWidth << ", " << requestedHeight << "].\n";
+                    return false;
+                }
+
+                width = requestedWidth;
+                height = requestedHeight;
             } else {
-                 std::cerr << "Error: Output resolution is not a valid 2-element sequence." << std::endl;
+                std::cerr << "Error: Output resolution is not a valid 2-element sequence.\n";
+                return false;
             }
         }
     }
