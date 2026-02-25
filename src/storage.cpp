@@ -96,6 +96,7 @@ int CStorage::StoreHDR() {
 }
 
 int CStorage::StoreJPG() {
+    constexpr int kJpegQuality = 90;
     return stbi_write_jpg(FileName.c_str(), m_ScreenSize.X, m_ScreenSize.Y, 3,
-                         m_ScanLineBuffer.data(), m_ScreenSize.X * 3);
+                         m_ScanLineBuffer.data(), kJpegQuality);
 }
