@@ -15,6 +15,8 @@
 #include <sstream>
 #include <iostream>
 #include <limits>
+#include <unordered_set>
+#include <cctype>
 
 #define RYML_SINGLE_HDR_DEFINE_NOW
 #include "ryml_all.hpp" // This should include necessary rapidyaml headers for operator>>
@@ -25,6 +27,48 @@ std::string keyName(const c4::yml::ConstNodeRef& node, const char* fallback = "u
         return fallback;
     }
     return std::string(node.key().str, node.key().len);
+}
+
+bool requireMapNode(const c4::yml::ConstNodeRef& node, const char* context) {
+    if (!node.is_map()) {
+        std::cerr << "Error: " << context << " must be a YAML map.\n";
+        return false;
+    }
+    return true;
+}
+
+bool requireSeqNode(const c4::yml::ConstNodeRef& node, const char* context) {
+    if (!node.is_seq()) {
+        std::cerr << "Error: " << context << " must be a YAML sequence.\n";
+        return false;
+    }
+    return true;
+}
+
+bool validateKnownKeys(const c4::yml::ConstNodeRef& node,
+                       std::initializer_list<const char*> allowedKeys,
+                       const char* context) {
+    if (!requireMapNode(node, context)) {
+        return false;
+    }
+
+    std::unordered_set<std::string> allowed;
+    for (const char* key : allowedKeys) {
+        allowed.emplace(key);
+    }
+
+    for (auto child : node.children()) {
+        if (!child.has_key()) {
+            std::cerr << "Error: " << context << " contains a keyless entry.\n";
+            return false;
+        }
+        std::string key(child.key().str, child.key().len);
+        if (allowed.find(key) == allowed.end()) {
+            std::cerr << "Error: unknown field '" << key << "' in " << context << ".\n";
+            return false;
+        }
+    }
+    return true;
 }
 
 template <typename T>
@@ -109,6 +153,45 @@ bool readRequiredColor(const c4::yml::ConstNodeRef& parent, const char* key, CCo
     }
     return readColorNode(parent[key], out);
 }
+
+bool validateTransforms(const c4::yml::ConstNodeRef& objectNode, const char* context) {
+    if (!objectNode.has_child("transforms")) {
+        return true;
+    }
+
+    auto transforms = objectNode["transforms"];
+    if (!requireSeqNode(transforms, "object.transforms")) {
+        return false;
+    }
+
+    for (auto entry : transforms) {
+        if (!requireMapNode(entry, "object transform entry")) {
+            return false;
+        }
+        if (entry.num_children() != 1) {
+            std::cerr << "Error: each transform entry must contain exactly one operation in " << context << ".\n";
+            return false;
+        }
+
+        auto op = entry[0];
+        if (!op.has_key()) {
+            std::cerr << "Error: transform entry is missing operation name in " << context << ".\n";
+            return false;
+        }
+        std::string opName(op.key().str, op.key().len);
+        if (opName != "translate" && opName != "rotate" && opName != "scale") {
+            std::cerr << "Error: unsupported transform '" << opName << "' in " << context << ".\n";
+            return false;
+        }
+
+        CVector v(0, 0, 0);
+        if (!readVectorNode(op, v)) {
+            return false;
+        }
+    }
+
+    return true;
+}
 } // namespace
 
 bool SceneLoader::load(const std::string& filename,
@@ -131,6 +214,9 @@ bool SceneLoader::load(const std::string& filename,
         c4::to_substr(data)
     );
     auto root = tree.rootref();
+    if (!validateKnownKeys(root, {"globals", "textures", "objects", "output", "camera"}, "scene root")) {
+        return false;
+    }
 
     // Build into a temporary studio so parse failures do not mutate caller state.
     CStudio stagedStudio(studio.RecurseDepth);
@@ -141,9 +227,16 @@ bool SceneLoader::load(const std::string& filename,
     // 1. Globals
     if (root.has_child("globals")) {
         auto gl = root["globals"];
+        if (!validateKnownKeys(gl, {"recursion_depth", "oversampling", "background_color"}, "globals")) {
+            return false;
+        }
 
         int recursionDepth = stagedStudio.RecurseDepth;
         if (!readOptionalScalar(gl, "recursion_depth", recursionDepth, "globals")) {
+            return false;
+        }
+        if (recursionDepth < 0) {
+            std::cerr << "Error: recursion_depth must be >= 0. Got " << recursionDepth << ".\n";
             return false;
         }
         stagedStudio.RecurseDepth = recursionDepth;
@@ -172,7 +265,13 @@ bool SceneLoader::load(const std::string& filename,
     std::unordered_map<std::string, CTexture*> textureMap;
     if (root.has_child("textures")) {
         auto textures = root["textures"];
+        if (!requireSeqNode(textures, "textures")) {
+            return false;
+        }
         for (auto tex : textures) {
+            if (!validateKnownKeys(tex, {"type", "name", "color"}, "texture")) {
+                return false;
+            }
             std::string type;
             if (!readRequiredScalar(tex, "type", type, "texture")) {
                 return false;
@@ -202,12 +301,21 @@ bool SceneLoader::load(const std::string& filename,
 
     if (root.has_child("objects")) {
         auto objects = root["objects"];
+        if (!requireSeqNode(objects, "objects")) {
+            return false;
+        }
         for (auto obj : objects) {
+            if (!requireMapNode(obj, "object")) {
+                return false;
+            }
             std::string type;
             if (!readRequiredScalar(obj, "type", type, "object")) {
                 return false;
             }
             if (type == "plane") {
+                if (!validateKnownKeys(obj, {"id", "type", "point", "normal", "texture", "transforms"}, "plane object")) {
+                    return false;
+                }
                 CVector point(0, 0, 0);
                 CVector normal(0, 0, 1);
                 std::string texture_name;
@@ -225,8 +333,14 @@ bool SceneLoader::load(const std::string& filename,
                     std::cerr << "Error: texture '" << texture_name << "' not found for plane object.\n";
                     return false;
                 }
+                if (!validateTransforms(obj, "plane object")) {
+                    return false;
+                }
                 stagedStudio.Objects.Objects.push_back(new CPlane(point, normal, it->second, nullptr, false));
             } else if (type == "sphere") {
+                if (!validateKnownKeys(obj, {"id", "type", "center", "radius", "texture", "transforms"}, "sphere object")) {
+                    return false;
+                }
                 CVector center(0, 0, 0);
                 double radius = 0.0;
                 std::string texture_name;
@@ -248,6 +362,9 @@ bool SceneLoader::load(const std::string& filename,
                     std::cerr << "Error: texture '" << texture_name << "' not found for sphere object.\n";
                     return false;
                 }
+                if (!validateTransforms(obj, "sphere object")) {
+                    return false;
+                }
                 stagedStudio.Objects.Objects.push_back(new CSphere(radius, center, it->second, nullptr, false));
             } else {
                 std::cerr << "Error: unsupported object type '" << type << "'.\n";
@@ -265,7 +382,14 @@ bool SceneLoader::load(const std::string& filename,
     CStorage::ImgClass imgType = CStorage::PNG;
     if (root.has_child("output")) {
         auto out = root["output"];
+        if (!validateKnownKeys(out, {"filename", "format", "resolution"}, "output")) {
+            return false;
+        }
         if (!readOptionalScalar(out, "filename", out_fname, "output")) {
+            return false;
+        }
+        if (out_fname.empty()) {
+            std::cerr << "Error: output filename must not be empty.\n";
             return false;
         }
         std::string fmt;
@@ -273,6 +397,9 @@ bool SceneLoader::load(const std::string& filename,
             return false;
         }
         if (!fmt.empty()) {
+            for (char& c : fmt) {
+                c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+            }
             if (fmt == "PNG") imgType = CStorage::PNG;
             else if (fmt == "JPG" || fmt == "JPEG") imgType = CStorage::JPG;
             else if (fmt == "TGA") imgType = CStorage::TGA;
@@ -324,6 +451,24 @@ bool SceneLoader::load(const std::string& filename,
     if (root.has_child("camera")) {
         hasCamera = true;
         auto cam = root["camera"];
+        if (!validateKnownKeys(cam, {"type", "position", "look_at", "up", "fov"}, "camera")) {
+            return false;
+        }
+
+        std::string camType;
+        if (!readOptionalScalar(cam, "type", camType, "camera")) {
+            return false;
+        }
+        if (!camType.empty()) {
+            for (char& c : camType) {
+                c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+            }
+            if (camType != "perspective") {
+                std::cerr << "Error: unsupported camera type '" << camType << "'.\n";
+                return false;
+            }
+        }
+
         if (cam.has_child("position")) {
             if (!readVectorNode(cam["position"], position)) {
                 return false;
@@ -348,10 +493,24 @@ bool SceneLoader::load(const std::string& filename,
                 }
                 fov_node[0] >> fov_h;
                 fov_node[1] >> fov_v;
+                if (fov_h <= 0.0 || fov_h >= 180.0 || fov_v <= 0.0 || fov_v >= 180.0) {
+                    std::cerr << "Error: Camera FOV values must be in (0, 180). Got ["
+                              << fov_h << ", " << fov_v << "].\n";
+                    return false;
+                }
             } else {
                 std::cerr << "Error: Camera FOV is not a valid 2-element sequence.\n";
                 return false;
             }
+        }
+
+        if ((look_at - position).NormOf() <= 0.0) {
+            std::cerr << "Error: camera look_at must differ from position.\n";
+            return false;
+        }
+        if (up.NormOf() <= 0.0) {
+            std::cerr << "Error: camera up vector must be non-zero.\n";
+            return false;
         }
     }
 
