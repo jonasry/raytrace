@@ -42,6 +42,20 @@ bool readRequiredScalar(const c4::yml::ConstNodeRef& parent, const char* key, T&
     return true;
 }
 
+template <typename T>
+bool readOptionalScalar(const c4::yml::ConstNodeRef& parent, const char* key, T& out, const char* context) {
+    if (!parent.has_child(key)) {
+        return true;
+    }
+    auto node = parent[key];
+    if (!node.readable()) {
+        std::cerr << "Error: field '" << key << "' in " << context << " is not readable.\n";
+        return false;
+    }
+    node >> out;
+    return true;
+}
+
 bool readVectorNode(const c4::yml::ConstNodeRef& node, CVector& out) {
     if (!node.is_seq() || node.num_children() != 3) {
         std::cerr << "Error: YAML node '" << keyName(node) << "' is not a valid 3-element sequence for a vector.\n";
@@ -118,111 +132,131 @@ bool SceneLoader::load(const std::string& filename,
     );
     auto root = tree.rootref();
 
+    // Build into a temporary studio so parse failures do not mutate caller state.
+    CStudio stagedStudio(studio.RecurseDepth);
+    stagedStudio.RecurseDepth = studio.RecurseDepth;
+    stagedStudio.Oversampling = studio.Oversampling;
+    stagedStudio.BackgroundColor = studio.BackgroundColor;
+
     // 1. Globals
     if (root.has_child("globals")) {
         auto gl = root["globals"];
-        if (gl.has_child("recursion_depth")) {
-            gl["recursion_depth"] >> studio.RecurseDepth;
+
+        int recursionDepth = stagedStudio.RecurseDepth;
+        if (!readOptionalScalar(gl, "recursion_depth", recursionDepth, "globals")) {
+            return false;
         }
-        if (gl.has_child("oversampling")) {
-            int oversampling;
-            gl["oversampling"] >> oversampling;
-            if (oversampling >= 1) {
-                studio.Oversampling = oversampling;
-            }
+        stagedStudio.RecurseDepth = recursionDepth;
+
+        int oversampling = stagedStudio.Oversampling;
+        if (!readOptionalScalar(gl, "oversampling", oversampling, "globals")) {
+            return false;
         }
+        if (oversampling < 1) {
+            std::cerr << "Error: oversampling must be >= 1. Got " << oversampling << ".\n";
+            return false;
+        }
+        stagedStudio.Oversampling = oversampling;
+
         if (gl.has_child("background_color")) {
             CColor color(0, 0, 0);
-            if (readColorNode(gl["background_color"], color)) {
-                studio.BackgroundColor = color;
+            if (!readColorNode(gl["background_color"], color)) {
+                return false;
             }
+            stagedStudio.BackgroundColor = color;
         }
     }
 
-    // 2. Setup default scene (textures, lights, objects)
-    // Map texture names to raw pointers (studio owns the textures)
+    // 2. Textures and objects
+    // Map texture names to raw pointers (stagedStudio owns the textures)
     std::unordered_map<std::string, CTexture*> textureMap;
     if (root.has_child("textures")) {
         auto textures = root["textures"];
         for (auto tex : textures) {
             std::string type;
             if (!readRequiredScalar(tex, "type", type, "texture")) {
-                continue;
+                return false;
             }
-            if (type == "solid") {
-                std::string name;
-                CColor color(0, 0, 0);
-                if (!readRequiredScalar(tex, "name", name, "texture")) {
-                    continue;
-                }
-                if (!readRequiredColor(tex, "color", color, "texture")) {
-                    continue;
-                }
-                auto texture = new CTexture(color);
-                studio.Textures.emplace_back(texture);
-                textureMap[name] = texture;
-            } else {
-                std::cerr << "Warning: unsupported texture type '" << type << "'.\n";
+            if (type != "solid") {
+                std::cerr << "Error: unsupported texture type '" << type << "'.\n";
+                return false;
             }
+
+            std::string name;
+            CColor color(0, 0, 0);
+            if (!readRequiredScalar(tex, "name", name, "texture")) {
+                return false;
+            }
+            if (!readRequiredColor(tex, "color", color, "texture")) {
+                return false;
+            }
+            if (textureMap.find(name) != textureMap.end()) {
+                std::cerr << "Error: duplicate texture name '" << name << "'.\n";
+                return false;
+            }
+
+            stagedStudio.Textures.emplace_back(new CTexture(color));
+            textureMap[name] = stagedStudio.Textures.back().get();
         }
     }
-    
+
     if (root.has_child("objects")) {
         auto objects = root["objects"];
         for (auto obj : objects) {
             std::string type;
             if (!readRequiredScalar(obj, "type", type, "object")) {
-                continue;
+                return false;
             }
             if (type == "plane") {
                 CVector point(0, 0, 0);
                 CVector normal(0, 0, 1);
                 std::string texture_name;
                 if (!readRequiredVector(obj, "point", point, "plane object")) {
-                    continue;
+                    return false;
                 }
                 if (!readRequiredVector(obj, "normal", normal, "plane object")) {
-                    continue;
+                    return false;
                 }
                 if (!readRequiredScalar(obj, "texture", texture_name, "plane object")) {
-                    continue;
+                    return false;
                 }
                 auto it = textureMap.find(texture_name);
                 if (it == textureMap.end()) {
-                    std::cerr << "Texture '" << texture_name << "' not found\n";
-                    continue;
+                    std::cerr << "Error: texture '" << texture_name << "' not found for plane object.\n";
+                    return false;
                 }
-                CPlane* P = new CPlane(point, normal, it->second, nullptr, false);
-                studio.Objects.Objects.push_back(P);
-
+                stagedStudio.Objects.Objects.push_back(new CPlane(point, normal, it->second, nullptr, false));
             } else if (type == "sphere") {
                 CVector center(0, 0, 0);
                 double radius = 0.0;
                 std::string texture_name;
                 if (!readRequiredVector(obj, "center", center, "sphere object")) {
-                    continue;
+                    return false;
                 }
                 if (!readRequiredScalar(obj, "radius", radius, "sphere object")) {
-                    continue;
+                    return false;
+                }
+                if (radius <= 0.0) {
+                    std::cerr << "Error: sphere radius must be > 0. Got " << radius << ".\n";
+                    return false;
                 }
                 if (!readRequiredScalar(obj, "texture", texture_name, "sphere object")) {
-                    continue;
+                    return false;
                 }
                 auto it = textureMap.find(texture_name);
                 if (it == textureMap.end()) {
-                    std::cerr << "Texture '" << texture_name << "' not found\n";
-                    continue;
+                    std::cerr << "Error: texture '" << texture_name << "' not found for sphere object.\n";
+                    return false;
                 }
-                CSphere* sph = new CSphere(radius, center, it->second, nullptr, false);
-                studio.Objects.Objects.push_back(sph);
+                stagedStudio.Objects.Objects.push_back(new CSphere(radius, center, it->second, nullptr, false));
             } else {
-                std::cerr << "Warning: unsupported object type '" << type << "'.\n";
+                std::cerr << "Error: unsupported object type '" << type << "'.\n";
+                return false;
             }
         }
-    	SetupLights(studio);
-
+        SetupLights(stagedStudio);
     } else {
-        SetupStudio(studio);
+        SetupStudio(stagedStudio);
     }
 
     // 3. Output parameters
@@ -231,16 +265,22 @@ bool SceneLoader::load(const std::string& filename,
     CStorage::ImgClass imgType = CStorage::PNG;
     if (root.has_child("output")) {
         auto out = root["output"];
-        if (out.has_child("filename")) {
-            out["filename"] >> out_fname;
+        if (!readOptionalScalar(out, "filename", out_fname, "output")) {
+            return false;
         }
-        if (out.has_child("format")) {
-            std::string fmt;
-            out["format"] >> fmt;
+        std::string fmt;
+        if (!readOptionalScalar(out, "format", fmt, "output")) {
+            return false;
+        }
+        if (!fmt.empty()) {
             if (fmt == "PNG") imgType = CStorage::PNG;
             else if (fmt == "JPG" || fmt == "JPEG") imgType = CStorage::JPG;
             else if (fmt == "TGA") imgType = CStorage::TGA;
             else if (fmt == "HDR") imgType = CStorage::HDR;
+            else {
+                std::cerr << "Error: unsupported output format '" << fmt << "'.\n";
+                return false;
+            }
         }
         if (out.has_child("resolution")) {
             auto res = out["resolution"];
@@ -278,34 +318,57 @@ bool SceneLoader::load(const std::string& filename,
     }
 
     // 4. Camera
+    bool hasCamera = false;
+    vector position(0,0,0), look_at(0,0,1), up(0,1,0);
+    double fov_h = 40.0, fov_v = 40.0;
     if (root.has_child("camera")) {
+        hasCamera = true;
         auto cam = root["camera"];
-        // only perspective supported
-        vector position(0,0,0), look_at(0,0,1), up(0,1,0);
-        double fov_h = 40.0, fov_v = 40.0;
         if (cam.has_child("position")) {
-            readVectorNode(cam["position"], position);
+            if (!readVectorNode(cam["position"], position)) {
+                return false;
+            }
         }
         if (cam.has_child("look_at")) {
-            readVectorNode(cam["look_at"], look_at);
+            if (!readVectorNode(cam["look_at"], look_at)) {
+                return false;
+            }
         }
         if (cam.has_child("up")) {
-            readVectorNode(cam["up"], up);
+            if (!readVectorNode(cam["up"], up)) {
+                return false;
+            }
         }
         if (cam.has_child("fov")) {
             auto fov_node = cam["fov"];
             if (fov_node.is_seq() && fov_node.num_children() == 2) {
+                if (!fov_node[0].readable() || !fov_node[1].readable()) {
+                    std::cerr << "Error: Camera FOV values are not readable.\n";
+                    return false;
+                }
                 fov_node[0] >> fov_h;
                 fov_node[1] >> fov_v;
             } else {
-                std::cerr << "Error: Camera FOV is not a valid 2-element sequence." << std::endl;
+                std::cerr << "Error: Camera FOV is not a valid 2-element sequence.\n";
+                return false;
             }
         }
-        // build camera
+    }
+
+    // Commit scene only after full parse/validation succeeds.
+    studio.Lights.swap(stagedStudio.Lights);
+    studio.Textures.swap(stagedStudio.Textures);
+    studio.Objects.Objects.swap(stagedStudio.Objects.Objects);
+    studio.BackgroundColor = stagedStudio.BackgroundColor;
+    studio.RecurseDepth = stagedStudio.RecurseDepth;
+    studio.Oversampling = stagedStudio.Oversampling;
+
+    if (hasCamera) {
         CLine ray_dir(look_at - position, position);
         COptic optic(ray_dir, up, fov_h, fov_v);
-        cameras.clear();
-        cameras.emplace_back(new CCamera(optic, &studio, out_fname, imgType, width, height));
+        std::vector<std::unique_ptr<CCamera>> stagedCameras;
+        stagedCameras.emplace_back(new CCamera(optic, &studio, out_fname, imgType, width, height));
+        cameras.swap(stagedCameras);
     }
 
     return true;
