@@ -56,6 +56,7 @@ struct TextureSpec {
     double shinePow = 0.0;
     double ks = 0.0;
     double ior = 1.0;
+    double transparency = 0.0;
     double scale = 1.0;
     CVector cells = CVector(1, 1, 1);
     std::vector<std::string> baseTextures;
@@ -479,7 +480,8 @@ bool parseTextureSpecs(const c4::yml::ConstNodeRef& texturesNode,
                 return false;
             }
         } else if (spec.type == "material") {
-            if (!validateKnownKeys(tex, {"name", "type", "diffuse", "specular", "shine_pow", "ks", "ior"},
+            if (!validateKnownKeys(tex, {"name", "type", "diffuse", "specular",
+                                         "shine_pow", "ks", "ior", "transparency"},
                                    "material texture")) {
                 return false;
             }
@@ -498,9 +500,18 @@ bool parseTextureSpecs(const c4::yml::ConstNodeRef& texturesNode,
             if (!readOptionalScalar(tex, "ior", spec.ior, "material texture")) {
                 return false;
             }
+            if (!readOptionalScalar(tex, "transparency", spec.transparency,
+                                    "material texture")) {
+                return false;
+            }
             if (spec.ior <= 0.0) {
                 std::cerr << "Error: material texture '" << spec.name
                           << "' must have ior > 0.\n";
+                return false;
+            }
+            if (spec.transparency < 0.0 || spec.transparency > 1.0) {
+                std::cerr << "Error: material texture '" << spec.name
+                          << "' must have transparency in [0, 1].\n";
                 return false;
             }
         } else if (spec.type == "checker") {
@@ -590,7 +601,7 @@ bool buildTextures(const std::vector<TextureSpec>& orderedSpecs,
                 texture.reset(new CTexture(spec.color));
             } else if (spec.type == "material") {
                 texture.reset(new CTexture(spec.diffuse, spec.specular, spec.shinePow,
-                                           spec.ks, spec.ior));
+                                           spec.ks, spec.ior, spec.transparency));
             } else if (spec.type == "checker") {
                 CTexture* first = buildTexture(spec.baseTextures[0]);
                 CTexture* second = buildTexture(spec.baseTextures[1]);

@@ -17,17 +17,20 @@ public: // Constructor
 
 	//	General constructor
 
-	CTexture(CColor D,CColor Sh,double S,double Ks,double IOR=1) :
-		m_Diffuse(D),m_Specular(Sh),m_ShinePow(S),m_Ks(Ks),m_IOR(IOR) {}
+	CTexture(CColor D,CColor Sh,double S,double Ks,double IOR=1,
+	         double Transparency=0) :
+		m_Diffuse(D),m_Specular(Sh),m_ShinePow(S),m_Ks(Ks),
+		m_IOR(IOR),m_Transparency(Transparency) {}
 
 	//	Simplified constructor; assume diffuse only
 
 	CTexture(CColor D) : m_Diffuse(D), m_Specular(0,0,0),
-						 m_ShinePow(0), m_Ks(0), m_IOR(1) {}
+						 m_ShinePow(0), m_Ks(0), m_IOR(1), m_Transparency(0) {}
 
 protected:
 
-	CTexture(){}
+	CTexture() : m_Diffuse(0,0,0), m_Specular(0,0,0),
+	             m_ShinePow(0), m_Ks(0), m_IOR(1), m_Transparency(0) {}
 
 
 public: // Services
@@ -40,6 +43,7 @@ public: // Services
 	virtual double ShinePow(const vector &) const { return m_ShinePow; }
 	virtual double Ks(const vector &) const { return m_Ks; }
 	virtual double IOR(const vector &) { return m_IOR; }
+	virtual double Transparency(const vector &) const { return m_Transparency; }
 
 	virtual void Translate(vector T) { (void)T; }
 	virtual void Rotate(vector R)    { (void)R; }
@@ -54,6 +58,7 @@ private:// Data
 	double m_ShinePow;  
 	double m_Ks;        //	Strength of reflectivity
 	double m_IOR;		//	Index of refraction
+	double m_Transparency;
 
 };
 

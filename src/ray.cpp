@@ -8,10 +8,62 @@
 #include "studio.h"
 #include "prim2.h"
 #include "texture.h"  // for CTexture
+#include <algorithm>
+#include <cmath>
 
 int Shaded(CRay::DifferentialArea dA, const CStudio* S, const CLight* L);
 
-CColor CRay::Sample(const CStudio* Studio, int RecurseLevel) {
+namespace {
+
+constexpr double kAirIOR = 1.0;
+constexpr double kRayBias = 1e-4;
+
+double Clamp(double value, double lo, double hi) {
+	return std::max(lo, std::min(value, hi));
+}
+
+bool SupportsBasicRefraction(const CPrimitive* primitive) {
+	if (primitive == nullptr) {
+		return false;
+	}
+
+	return primitive->Id() != CPrimitive::Plane &&
+	       primitive->Id() != CPrimitive::Group;
+}
+
+double FresnelReflectance(double cosThetaI, double etaI, double etaT) {
+	cosThetaI = Clamp(cosThetaI, 0.0, 1.0);
+
+	const double r0 = (etaI - etaT) / (etaI + etaT);
+	const double base = r0 * r0;
+	const double oneMinusCos = 1.0 - cosThetaI;
+
+	return base + (1.0 - base) * oneMinusCos * oneMinusCos *
+	       oneMinusCos * oneMinusCos * oneMinusCos;
+}
+
+bool RefractDirection(const vector& incident,
+                      const vector& normal,
+                      double etaI,
+                      double etaT,
+                      vector& refracted) {
+	const double eta = etaI / etaT;
+	const double cosThetaI = Clamp(-(incident * normal), 0.0, 1.0);
+	const double sinThetaTSquared = eta * eta * (1.0 - cosThetaI * cosThetaI);
+
+	if (sinThetaTSquared > 1.0) {
+		return false;
+	}
+
+	const double cosThetaT = std::sqrt(1.0 - sinThetaTSquared);
+	refracted = eta * incident + (eta * cosThetaI - cosThetaT) * normal;
+	refracted = !refracted;
+	return true;
+}
+
+} // namespace
+
+CColor CRay::Sample(const CStudio* Studio, int RecurseLevel, double CurrentIOR) {
 	CColor Intensity(0,0,0);
 
 	// Get a sample for this ray
@@ -30,12 +82,12 @@ CColor CRay::Sample(const CStudio* Studio, int RecurseLevel) {
 
 	//	Replace the intersected object with a small differential plane:
 
-	m_dA.Loc 	= PointAt(I.Distance);
-	m_dA.Texture= I.IntersectedPrimitive->Texture();
-	m_dA.Normal = I.IntersectedPrimitive->Normal(m_dA.Loc);
+	m_dA.Loc = PointAt(I.Distance);
+	m_dA.Texture = I.IntersectedPrimitive->Texture();
 
-	if ((Dir()*m_dA.Normal)>0.0)
-		m_dA.Normal = -m_dA.Normal;
+	vector SurfaceNormal = I.IntersectedPrimitive->Normal(m_dA.Loc);
+	const bool FrontFace = (Dir() * SurfaceNormal) < 0.0;
+	m_dA.Normal = FrontFace ? SurfaceNormal : -SurfaceNormal;
 
 	// Add direct illumination:
     // Add direct illumination from each light
@@ -48,16 +100,46 @@ CColor CRay::Sample(const CStudio* Studio, int RecurseLevel) {
         }
     }
 
+	const double Transparency = Clamp(m_dA.Texture->Transparency(m_dA.Loc), 0.0, 1.0);
+	const bool UseRefraction =
+		Transparency > 0.0 && SupportsBasicRefraction(I.IntersectedPrimitive);
+	const double OpaqueWeight =
+		UseRefraction ? Clamp(1.0 - Transparency, 0.0, 1.0) : 1.0;
+	Intensity = Intensity * OpaqueWeight;
+
 	if (RecurseLevel==Studio->RecurseDepth)	return Intensity;
 
 	//	Add indirect illumination: (Temporary)
 
-	if ( m_dA.Texture->Ks(m_dA.Loc) > .0 ) { // consider nonzero level
+	if (OpaqueWeight > 0.0 && m_dA.Texture->Ks(m_dA.Loc) > .0) {
 		vector	ReflectedDirection = Dir() - 2*(Dir() * m_dA.Normal)*m_dA.Normal;
-		CRay R(ReflectedDirection, m_dA.Loc);
+		CRay R(ReflectedDirection, m_dA.Loc + m_dA.Normal * kRayBias);
 
 		Intensity += R.Sample(Studio, RecurseLevel+1)
-			* m_dA.Texture->Reflectivity(m_dA.Loc, m_dA.Normal, ReflectedDirection);
+			* (m_dA.Texture->Reflectivity(m_dA.Loc, m_dA.Normal, ReflectedDirection)
+			   * OpaqueWeight);
+	}
+
+	if (UseRefraction) {
+		const double NextIOR = FrontFace ? m_dA.Texture->IOR(m_dA.Loc) : kAirIOR;
+		const double CosThetaI = Clamp(-(Dir() * m_dA.Normal), 0.0, 1.0);
+		double Reflectance = FresnelReflectance(CosThetaI, CurrentIOR, NextIOR);
+		Reflectance = Clamp(Reflectance, 0.0, 1.0);
+
+		vector ReflectedDirection = Dir() - 2*(Dir() * m_dA.Normal)*m_dA.Normal;
+		CRay ReflectedRay(ReflectedDirection, m_dA.Loc + m_dA.Normal * kRayBias);
+
+		vector RefractedDirection;
+		if (RefractDirection(Dir(), m_dA.Normal, CurrentIOR, NextIOR, RefractedDirection)) {
+			CRay RefractedRay(RefractedDirection, m_dA.Loc - m_dA.Normal * kRayBias);
+			Intensity += ReflectedRay.Sample(Studio, RecurseLevel + 1, CurrentIOR) *
+			             (Reflectance * Transparency);
+			Intensity += RefractedRay.Sample(Studio, RecurseLevel + 1, NextIOR) *
+			             ((1.0 - Reflectance) * Transparency);
+		} else {
+			Intensity += ReflectedRay.Sample(Studio, RecurseLevel + 1, CurrentIOR) *
+			             Transparency;
+		}
 	}
 
 	double a = exp(-I.Distance/20.);

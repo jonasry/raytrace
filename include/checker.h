@@ -29,6 +29,7 @@ public: // Sevices
 	virtual CColor 	Specular(const vector &) const;
 	virtual double 	ShinePow(const vector &) const;
 	virtual double 	Ks(const vector &) const;
+	virtual double 	Transparency(const vector &) const;
 	
 	virtual void    Translate(vector T);
 	virtual void 	Scale(vector S);
@@ -75,6 +76,11 @@ double CChecker::ShinePow(const vector & P) const {
 inline
 double CChecker::Ks(const vector & P) const {
 	return SelectTexture(P)->Ks(P);
+}
+
+inline
+double CChecker::Transparency(const vector & P) const {
+	return SelectTexture(P)->Transparency(P);
 }
 
 

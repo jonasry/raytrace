@@ -37,7 +37,21 @@ For example:
 ```sh
 ./rt path/to/scene.yaml
 ```
-See [examples/legacy_setup.yaml](/Users/luck/engine/examples/legacy_setup.yaml) for a full scene translated from the historical `setup.cpp`.
+See [examples/legacy_setup.yaml](examples/legacy_setup.yaml) for a full scene translated from the historical `setup.cpp`.
+See [examples/glass_spheres.yaml](examples/glass_spheres.yaml) for a basic refractive-glass scene.
+
+## Material Textures
+
+YAML `material` textures accept:
+
+- `diffuse`: base surface color
+- `specular`: specular response used by the legacy direct-lighting model
+- `shine_pow`: highlight roughness term
+- `ks`: reflective strength for opaque mirror-like recursion
+- `ior`: index of refraction for transparent materials
+- `transparency`: scalar in `[0, 1]` enabling transmission/refraction
+
+Transparent refraction is currently intended for closed dielectric objects such as spheres and boxes. Transparent shadows, absorption, and nested dielectric stacks are not implemented in this version.
 
 ## Cleaning
 To remove built artifacts, run:

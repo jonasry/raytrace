@@ -37,7 +37,7 @@ public:	// Constructors
 
 public: // Services
 
-	CColor Sample(const CStudio* Studio, int RecurseLevel);
+	CColor Sample(const CStudio* Studio, int RecurseLevel, double CurrentIOR = 1.0);
 
 
 private:

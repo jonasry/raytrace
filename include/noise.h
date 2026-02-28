@@ -29,6 +29,7 @@ public:	//  Services:
 	virtual double ShinePow(const vector &) const;
 	virtual double Ks(const vector &) const;
 	virtual double IOR(const vector &);
+	virtual double Transparency(const vector &) const;
 
 //	virtual void Serialize(CArchive A);
 
@@ -80,6 +81,11 @@ double CNoise::Ks(const vector& r) const {
 inline
 double CNoise::IOR(const vector& r) {
 	return Blend(T1->IOR(r), T2->IOR(r), Noise(r/m_Scale),a3,a2,a1,a0) ;
+}
+
+inline
+double CNoise::Transparency(const vector& r) const {
+	return Blend(T1->Transparency(r), T2->Transparency(r), Noise(r/m_Scale),a3,a2,a1,a0) ;
 }
 
 #endif
