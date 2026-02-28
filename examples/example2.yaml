@@ -13,7 +13,7 @@ camera:
   position: [7,-14,7]
   look_at: [0,0,1.5]
   up: [0,0,1]
-  fov: [38,24]
+  focal_length: 4
 
 textures:
   - name: floor_gray

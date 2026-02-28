@@ -4,16 +4,16 @@ globals:
   background_color: [0.2,0.55,0.85]
 
 output:
-  filename: "render.png"
+  filename: "example.png"
   format: PNG
   resolution: [400,300]
 
 camera:
   type: perspective
   position: [3,-10,6]
-  look_at: [0,-2,4]
+  look_at: [1,1,1]
   up: [0,0,1]
-  fov: [40,30]
+  focal_length: 4
 
 textures:
   - name: white

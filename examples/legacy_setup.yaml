@@ -4,7 +4,7 @@ globals:
   background_color: [0.20,0.25,0.35]
 
 output:
-  filename: "left.png"
+  filename: "render.png"
   format: PNG
   resolution: [400,300]
 
@@ -13,7 +13,7 @@ camera:
   position: [3,-10,6]
   look_at: [0,-2,4]
   up: [0,0,1]
-  fov: [20,20]
+  focal_length: 2.75
 
 # Historical note:
 # The original setup also built a right-eye camera and wrote "right.img".

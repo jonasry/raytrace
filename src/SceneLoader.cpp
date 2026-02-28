@@ -1153,12 +1153,13 @@ bool SceneLoader::load(const std::string& filename,
     vector position(0, 0, 0);
     vector look_at(0, 0, 1);
     vector up(0, 1, 0);
+    double focalLength = 1.0;
     double fov_h = 40.0;
     double fov_v = 40.0;
     if (root.has_child("camera")) {
         hasCamera = true;
         auto cam = root["camera"];
-        if (!validateKnownKeys(cam, {"type", "position", "look_at", "up", "fov"}, "camera")) {
+        if (!validateKnownKeys(cam, {"type", "position", "look_at", "up", "focal_length"}, "camera")) {
             return false;
         }
 
@@ -1180,24 +1181,13 @@ bool SceneLoader::load(const std::string& filename,
         if (cam.has_child("up") && !readVectorNode(cam["up"], up)) {
             return false;
         }
-        if (cam.has_child("fov")) {
-            auto fovNode = cam["fov"];
-            if (!fovNode.is_seq() || fovNode.num_children() != 2) {
-                std::cerr << "Error: camera fov is not a valid 2-element sequence.\n";
-                return false;
-            }
-            if (!fovNode[0].readable() || !fovNode[1].readable()) {
-                std::cerr << "Error: camera fov values are not readable.\n";
-                return false;
-            }
-
-            fovNode[0] >> fov_h;
-            fovNode[1] >> fov_v;
-            if (fov_h <= 0.0 || fov_h >= 180.0 || fov_v <= 0.0 || fov_v >= 180.0) {
-                std::cerr << "Error: camera fov values must be in (0, 180). Got ["
-                          << fov_h << ", " << fov_v << "].\n";
-                return false;
-            }
+        if (!readRequiredScalar(cam, "focal_length", focalLength, "camera")) {
+            return false;
+        }
+        if (focalLength <= 0.0) {
+            std::cerr << "Error: camera focal_length must be > 0. Got "
+                      << focalLength << ".\n";
+            return false;
         }
 
         if ((look_at - position).NormOf() <= 0.0) {
@@ -1208,6 +1198,10 @@ bool SceneLoader::load(const std::string& filename,
             std::cerr << "Error: camera up vector must be non-zero.\n";
             return false;
         }
+
+        const double aspect = static_cast<double>(width) / static_cast<double>(height);
+        fov_h = std::atan(aspect / focalLength) * 180.0 / M_PI;
+        fov_v = std::atan(1.0 / focalLength) * 180.0 / M_PI;
     }
 
     studio.Lights.swap(stagedStudio.Lights);

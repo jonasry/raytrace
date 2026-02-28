@@ -41,8 +41,17 @@ camera:
   position: [3,-10,6]
   look_at: [0,-2,4]
   up: [0,0,1]
-  fov: [20,20]
+  focal_length: 2.75
 ```
+
+`focal_length` uses a normalized film plane with half-height `1` and
+half-width equal to the image aspect ratio. The loader derives the camera
+half-angles from output resolution as:
+
+- `h_half = atan(aspect / focal_length)`
+- `v_half = atan(1 / focal_length)`
+
+So image aspect and camera framing stay consistent automatically.
 
 # Textures
 
