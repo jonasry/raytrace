@@ -1,0 +1,109 @@
+globals:
+  recursion_depth: 6
+  oversampling: 4
+  background_color: [0.08,0.10,0.14]
+
+output:
+  filename: "example2.png"
+  format: PNG
+  resolution: [640,360]
+
+camera:
+  type: perspective
+  position: [7,-14,7]
+  look_at: [0,0,1.5]
+  up: [0,0,1]
+  fov: [38,24]
+
+textures:
+  - name: floor_gray
+    type: solid
+    color: [0.35,0.35,0.38]
+  - name: wall_blue
+    type: solid
+    color: [0.18,0.24,0.40]
+  - name: wall_warm
+    type: solid
+    color: [0.36,0.30,0.24]
+  - name: white
+    type: solid
+    color: [1.0,1.0,1.0]
+  - name: red
+    type: solid
+    color: [1.1,0.2,0.2]
+  - name: green
+    type: solid
+    color: [0.2,1.0,0.25]
+  - name: blue
+    type: solid
+    color: [0.25,0.45,1.1]
+  - name: gold
+    type: solid
+    color: [1.2,0.95,0.35]
+  - name: magenta
+    type: solid
+    color: [1.0,0.25,0.95]
+  - name: cyan
+    type: solid
+    color: [0.2,0.95,1.0]
+
+objects:
+  - id: floor
+    type: plane
+    point: [0,0,0]
+    normal: [0,0,1]
+    texture: floor_gray
+
+  - id: back_wall
+    type: plane
+    point: [0,8,0]
+    normal: [0,-1,0]
+    texture: wall_blue
+
+  - id: left_wall
+    type: plane
+    point: [-8,0,0]
+    normal: [1,0,0]
+    texture: wall_warm
+
+  - id: key_ball
+    type: sphere
+    center: [-1.6,0.8,1.7]
+    radius: 1.7
+    texture: white
+
+  - id: red_ball
+    type: sphere
+    center: [2.5,1.8,1.2]
+    radius: 1.2
+    texture: red
+
+  - id: green_ball
+    type: sphere
+    center: [0.2,-0.9,0.9]
+    radius: 0.9
+    texture: green
+
+  - id: blue_ball
+    type: sphere
+    center: [-3.7,2.6,0.8]
+    radius: 0.8
+    texture: blue
+
+  - id: gold_ball
+    type: sphere
+    center: [3.9,-0.6,0.7]
+    radius: 0.7
+    texture: gold
+
+  - id: magenta_ball
+    type: sphere
+    center: [-0.2,3.9,0.6]
+    radius: 0.6
+    texture: magenta
+
+  - id: cyan_ball
+    type: sphere
+    center: [1.6,-3.2,0.6]
+    radius: 0.6
+    texture: cyan
