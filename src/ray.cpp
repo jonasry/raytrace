@@ -61,7 +61,7 @@ CColor CRay::Sample(const CStudio* Studio, int RecurseLevel) {
 	}
 
 	double a = exp(-I.Distance/20.);
-	return Intensity*a + CColor(.2,.55,.85)*.5*(1-a);
+	return Intensity * a + Studio->BackgroundColor * (1 - a);
 }
 
 int Shaded(CRay::DifferentialArea dA, const CStudio* S, const CLight* L) {

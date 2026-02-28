@@ -23,6 +23,23 @@ textures:
     type: solid
     color: [0,2,0]
 
+lights:
+  - id: key
+    type: point
+    position: [5,10,20]
+    intensity: [0.3,0.3,0.3]
+  - id: fill
+    type: point
+    position: [-10,-5,20]
+    intensity: [0.24,0.24,0.24]
+  - id: rim
+    type: point
+    position: [7,-5,20]
+    intensity: [0.3,0.3,0.3]
+  - id: ambient
+    type: ambient
+    intensity: [0.3,0.288,0.261]
+
 objects:
   - id: floor
     type: plane

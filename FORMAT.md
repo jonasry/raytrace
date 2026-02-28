@@ -1,125 +1,219 @@
 Scene File Format Specification
 
-This document describes a JSON/YAML-based input format for defining scenes.
-It covers all features supported by the RayTracer application, replacing src/setup.cpp.
+This document describes the YAML scene format supported by `SceneLoader`.
 
-# 1. Top-Level Sections
+# Top-Level Sections
 
-The scene file contains these sections:
+Supported top-level keys:
 
-- global
-- cameras
-- textures
-- lights
-- objects
+- `globals`
+- `output`
+- `camera`
+- `textures`
+- `lights`
+- `objects`
 
-# 2. Global
+# Globals
 
-- recursion_depth: integer ≥ 0
-- background_color: [r,g,b] floats in [0,1]
-
-# 3. Output
-
-- format: one of [PNG, TGA, HDR, JPG]
-- resolution: [width:int, height:int]
-
-# 4. Cameras
-
-- name: unique ID, also used to set the name of the resulting image
-- type: "perspective"
-- position: [x, y, z]
-- look_at: [x, y, z]
-- up: [x, y, z]
-- fov: [horiz_deg, vert_deg]
-
-# 5. Textures
-
-Each defines a CTexture subclass:
-
-- name: unique ID
-- type: one of [solid, blend, noise, turbulence, marble]
-- parameters by type:
-  - solid: color: [r, g, b]
-  - blend/noise/turbulence/marble:
-    - base_textures: [id1, id2]
-    - scale: float
-    - blend_coeffs: [a3, a2, a1, a0]
-
-# 6. Lights
-
-List of CLight objects:
-
-- type: "ambient" or "point"
-- intensity: [r, g, b]
-- position: [x, y, z] (for point)
-- no_shade: bool (default false)
-
-# 7. Objects
-
-Scene graph of primitives:
-
-- id: unique string
-- type: [sphere, plane, box, cone, group, union, intersect]
-- texture: texture ID
-- parameters by type:
-  - sphere: center:[x, y, z], radius:float
-  - plane: point:[x, y, z], normal:[x, y, z]
-  - box: min:[x, y, z], max:[x, y, z]
-  - cone: apex:[x, y, z], axis:[x, y, z], angle:float
-  - group/union/intersect: children:[id, ...]
-- flip_inside: bool
-- transforms: ordered list of:
-  - translate:[x, y, z]
-  - rotate:[x, y, z] # Euler
-  - scale:[x, y, z]
-
-8. Example (YAML)
 ```yaml
-global:
-  recursion_depth: 5
-  background_color: [0.2,0.55,0.85]
+globals:
+  recursion_depth: 5      # integer >= 0
+  oversampling: 1         # integer >= 1
+  background_color: [0,0,0]
+```
 
+# Output
+
+```yaml
 output:
   filename: "render.png"
-  format: PNG
-  resolution: [800,600]
+  format: PNG             # PNG, JPG, TGA, HDR
+  resolution: [400,300]
+```
 
+# Camera
+
+One camera is loaded per scene file.
+
+```yaml
 camera:
   type: perspective
   position: [3,-10,6]
   look_at: [0,-2,4]
   up: [0,0,1]
-  fov: [40,30]
-
-textures:
-  - name: white
-    type: solid
-    color: [1,1,1]
-  - name: marble
-    type: marble
-    base_textures: [white,black]
-    scale: 2.5
-    blend_coeffs: [0.5,0,0.5,0]
-
-lights:
-  - type: ambient
-    intensity: [0.15,0.15,0.15]
-  - type: point
-    position: [5,10,20]
-    intensity: [1,1,1]
-
-objects:
-  - id: floor
-    type: plane
-    point: [0,0,0]
-    normal: [0,0,1]
-    texture: white
-  - id: ball
-    type: sphere
-    center: [0,0,1]
-    radius: 1
-    texture: marble
-    transforms:
-      - translate: [0,0,0]
-      - scale: [1,1,1]
+  fov: [20,20]
 ```
+
+# Textures
+
+Supported texture types:
+
+- `solid`
+- `material`
+- `checker`
+- `noise`
+- `turbulence`
+- `marble`
+
+## Solid
+
+```yaml
+- name: white
+  type: solid
+  color: [1,1,1]
+```
+
+## Material
+
+Maps to the full `CTexture(diffuse, specular, shine_pow, ks, ior)` constructor.
+Any color field in the scene format may be written either as `[r,g,b]` or as
+`to_spec(r,g,b)`, which applies the legacy `FHelper` mapping component-wise.
+This is the inverse of the normal-incidence Fresnel reflectance formula,
+turning reflectance values into the corresponding per-channel specular/IOR-like
+values for this renderer's material model.
+
+```yaml
+- name: polished
+  type: material
+  diffuse: [0,0,0]
+  specular: to_spec(0.80, 0.40, 0.20)
+  shine_pow: 0.1
+  ks: 0.6
+  ior: 1.0
+```
+
+## Checker
+
+```yaml
+- name: floor_checker
+  type: checker
+  base_textures: [white, blue]
+  cells: [2,2,2]
+```
+
+## Procedural (`noise`, `turbulence`, `marble`)
+
+```yaml
+- name: swirled
+  type: marble
+  base_textures: [white, black]
+  scale: 0.25
+```
+
+Notes:
+
+- `base_textures` must contain exactly two texture names.
+- Texture references may point to textures defined earlier or later in the file.
+
+# Lights
+
+Supported light types:
+
+- `ambient`
+- `point`
+
+```yaml
+lights:
+  - id: key
+    type: point
+    position: [5,10,20]
+    intensity: [0.3,0.3,0.3]
+
+  - id: ambient
+    type: ambient
+    intensity: [0.3,0.288,0.261]
+```
+
+# Objects
+
+Supported object types:
+
+- `plane`
+- `sphere`
+- `box`
+- `cone`
+- `group`
+- `intersect`
+- `union`
+
+Every object requires:
+
+- `id`
+- `type`
+
+Optional fields shared by object types:
+
+- `transforms`: ordered list of `translate`, `rotate`, or `scale`
+- `flip_inside`: supported by `plane`, `sphere`, `box`, `cone`, `intersect`, and `union`
+
+## Plane
+
+```yaml
+- id: floor
+  type: plane
+  point: [0,0,0]
+  normal: [0,0,1]
+  texture: white
+```
+
+## Sphere
+
+```yaml
+- id: ball
+  type: sphere
+  center: [0,0,1]
+  radius: 1
+  texture: polished
+```
+
+## Box
+
+```yaml
+- id: block
+  type: box
+  min: [0,0,0]
+  max: [1,1,1]
+  texture: polished
+```
+
+## Cone
+
+```yaml
+- id: tube
+  type: cone
+  base: [0,0,0]
+  apex: [0,1,0]
+  radius: 1
+  texture: polished
+```
+
+Note: this maps to the current runtime constructor `(base, apex, radius)` rather than an angle-based cone.
+
+## Group / Intersect / Union
+
+```yaml
+- id: cluster
+  type: group
+  children: [part_a, part_b]
+```
+
+Rules:
+
+- `children` entries must refer to other object ids in the same file.
+- Each child object may belong to only one parent composite.
+- Child objects are still defined in the top-level `objects` list; ownership is transferred into the parent when loaded.
+
+## Transforms
+
+Transforms are applied in the listed order.
+
+```yaml
+transforms:
+  - translate: [0,0,1]
+  - rotate: [0,0,0.3]
+  - scale: [1,1,2]
+```
+
+# Full Example
+
+See [examples/legacy_setup.yaml](/Users/luck/engine/examples/legacy_setup.yaml) for a full scene translated from the historical `setup.cpp`.

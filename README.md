@@ -37,6 +37,7 @@ For example:
 ```sh
 ./rt path/to/scene.yaml
 ```
+See [examples/legacy_setup.yaml](/Users/luck/engine/examples/legacy_setup.yaml) for a full scene translated from the historical `setup.cpp`.
 
 ## Cleaning
 To remove built artifacts, run:

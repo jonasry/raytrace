@@ -1,0 +1,481 @@
+globals:
+  recursion_depth: 5
+  oversampling: 1
+  background_color: [0.20,0.25,0.35]
+
+output:
+  filename: "left.png"
+  format: PNG
+  resolution: [400,300]
+
+camera:
+  type: perspective
+  position: [3,-10,6]
+  look_at: [0,-2,4]
+  up: [0,0,1]
+  fov: [20,20]
+
+# Historical note:
+# The original setup also built a right-eye camera and wrote "right.img".
+# The YAML loader still renders a single camera per file, so that path is
+# intentionally preserved here as documentation rather than active config.
+
+textures:
+  - name: white
+    type: solid
+    color: [2,2,2]
+
+  - name: blue
+    type: solid
+    color: [0,0,2]
+
+  - name: green
+    type: solid
+    color: [0,2,0]
+
+  - name: red
+    type: solid
+    color: [2,0,0]
+
+  - name: black
+    type: solid
+    color: [0,0,0]
+
+  - name: tex5
+    type: material
+    diffuse: [0,0,0]
+    specular: to_spec(0.80, 0.40, 0.20)
+    shine_pow: 0.1
+    ks: 0.6
+    ior: 1.0
+
+  - name: tex6
+    type: material
+    diffuse: [0,0,0]
+    specular: to_spec(0.55, 0.75, 0.70)
+    shine_pow: 0.1
+    ks: 0.6
+    ior: 1.0
+
+  - name: tex7
+    type: material
+    diffuse: [0,0,0]
+    specular: to_spec(0.55, 0.75, 0.70)
+    shine_pow: 0.05
+    ks: 0.6
+    ior: 1.0
+
+  - name: tex8
+    type: checker
+    base_textures: [white,blue]
+    cells: [2,2,2]
+
+  - name: tex9
+    type: noise
+    base_textures: [white,black]
+    scale: 0.3
+
+  - name: tex10
+    type: turbulence
+    base_textures: [white,red]
+    scale: 0.2
+
+  - name: tex11
+    type: marble
+    base_textures: [tex10,tex7]
+    scale: 0.25
+
+  - name: tex12
+    type: turbulence
+    base_textures: [blue,black]
+    scale: 0.5
+
+  - name: tex13
+    type: turbulence
+    base_textures: [white,black]
+    scale: 0.5
+
+  - name: tex14
+    type: turbulence
+    base_textures: [white,tex5]
+    scale: 0.5
+
+lights:
+  - id: key
+    type: point
+    position: [5,10,20]
+    intensity: [0.3,0.3,0.3]
+
+  - id: fill
+    type: point
+    position: [-10,-5,20]
+    intensity: [0.24,0.24,0.24]
+
+  - id: rim
+    type: point
+    position: [7,-5,20]
+    intensity: [0.3,0.3,0.3]
+
+  - id: ambient
+    type: ambient
+    intensity: [0.3,0.288,0.261]
+
+objects:
+  - id: red_box
+    type: box
+    min: [0,0,0]
+    max: [1,1,1]
+    texture: red
+    transforms:
+      - translate: [-0.5,-0.5,0]
+      - rotate: [0,0,0.1745]
+      - scale: [1,1,2]
+      - translate: [0,5,0]
+
+  - id: textured_box_1
+    type: box
+    min: [0,0,0]
+    max: [1,1,1]
+    texture: tex14
+    transforms:
+      - translate: [-0.5,-0.5,0]
+      - rotate: [0,0,0.22]
+      - scale: [1,1,2]
+      - translate: [-3,5,0]
+
+  - id: textured_box_2
+    type: box
+    min: [0,0,0]
+    max: [1,1,1]
+    texture: tex13
+    transforms:
+      - translate: [-0.5,-0.5,0]
+      - rotate: [0,0.15,0.10]
+      - scale: [1,1,2]
+      - translate: [-3,7,1]
+
+  - id: textured_box_3
+    type: box
+    min: [0,0,0]
+    max: [1,1,1]
+    texture: tex10
+    transforms:
+      - translate: [-0.5,-0.5,0]
+      - rotate: [0.20,0,0.33]
+      - scale: [1,1,2]
+      - translate: [-3,3,2]
+
+  - id: floor
+    type: plane
+    point: [0,0,0.01]
+    normal: [0,0,1]
+    texture: tex8
+    transforms:
+      - translate: [0,0,0]
+      - rotate: [0,0,0.3491]
+
+  - id: far_sphere
+    type: sphere
+    center: [-5,4,3]
+    radius: 2.0
+    texture: tex5
+
+  - id: sphere_top
+    type: sphere
+    center: [0,0,0]
+    radius: 1.0
+    texture: tex5
+    transforms:
+      - translate: [0,4,4]
+
+  - id: sphere_mid_1
+    type: sphere
+    center: [0,0,0]
+    radius: 1.0
+    texture: tex7
+    transforms:
+      - translate: [0,4,2]
+      - rotate: [0,0,0.3]
+
+  - id: sphere_mid_2
+    type: sphere
+    center: [0,0,0]
+    radius: 1.0
+    texture: tex6
+    transforms:
+      - translate: [0,4,2]
+      - rotate: [0.2,0.3,0]
+
+  - id: orbit_group
+    type: group
+    children:
+      - orbit_00
+      - orbit_01
+      - orbit_02
+      - orbit_03
+      - orbit_04
+      - orbit_05
+      - orbit_06
+      - orbit_07
+      - orbit_08
+      - orbit_09
+      - orbit_10
+      - orbit_11
+      - orbit_12
+      - orbit_13
+      - orbit_14
+      - orbit_15
+      - orbit_16
+      - orbit_17
+      - orbit_18
+      - orbit_19
+      - orbit_20
+      - orbit_21
+      - orbit_22
+      - orbit_23
+    transforms:
+      - translate: [0,0,0]
+
+  - id: orbit_00
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.750000]
+      - rotate: [0,0,0.000000]
+
+  - id: orbit_01
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.966504]
+      - rotate: [0,0,0.261795]
+
+  - id: orbit_02
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.966511]
+      - rotate: [0,0,0.523590]
+
+  - id: orbit_03
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.750013]
+      - rotate: [0,0,0.785385]
+
+  - id: orbit_04
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.533502]
+      - rotate: [0,0,1.047181]
+
+  - id: orbit_05
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.533483]
+      - rotate: [0,0,1.308976]
+
+  - id: orbit_06
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.749975]
+      - rotate: [0,0,1.570771]
+
+  - id: orbit_07
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.966492]
+      - rotate: [0,0,1.832566]
+
+  - id: orbit_08
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.966523]
+      - rotate: [0,0,2.094361]
+
+  - id: orbit_09
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.750038]
+      - rotate: [0,0,2.356156]
+
+  - id: orbit_10
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.533515]
+      - rotate: [0,0,2.617952]
+
+  - id: orbit_11
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.533470]
+      - rotate: [0,0,2.879747]
+
+  - id: orbit_12
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.749949]
+      - rotate: [0,0,3.141542]
+
+  - id: orbit_13
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.966479]
+      - rotate: [0,0,3.403337]
+
+  - id: orbit_14
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.966536]
+      - rotate: [0,0,3.665132]
+
+  - id: orbit_15
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.750063]
+      - rotate: [0,0,3.926927]
+
+  - id: orbit_16
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.533527]
+      - rotate: [0,0,4.188723]
+
+  - id: orbit_17
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.533458]
+      - rotate: [0,0,4.450518]
+
+  - id: orbit_18
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.749924]
+      - rotate: [0,0,4.712313]
+
+  - id: orbit_19
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.966466]
+      - rotate: [0,0,4.974108]
+
+  - id: orbit_20
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.966549]
+      - rotate: [0,0,5.235903]
+
+  - id: orbit_21
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.750089]
+      - rotate: [0,0,5.497698]
+
+  - id: orbit_22
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.533540]
+      - rotate: [0,0,5.759494]
+
+  - id: orbit_23
+    type: sphere
+    center: [0,0,0]
+    radius: 0.5
+    texture: tex6
+    transforms:
+      - translate: [0,2,0.533445]
+      - rotate: [0,0,6.021289]
+
+# Historical scratchpad, carried over from the old setup.cpp:
+#
+# - Alternate early layout:
+#   - checker plane at [0,0,0.01]
+#   - spheres at [1,-3,2], [1,2.5,3], [-2,-2.5,2], [0,4,3]
+#   - thin box from [-5,0,0] to [-4,20,5]
+#   - cone from base [1,3,2] to apex [0,4,3], radius 0.5, then translated by [1,1,1]
+#
+# - CSG experiment:
+#   - sphere(red): radius 1 at [0,0,0]
+#   - sphere(blue): radius 1 at [0,0,0], translated by [0,0,0.5], flip_inside: true
+#   - intersect of those two children, then rotate [0.2,0.1,0.3] and translate [0,0,3]
+#
+# - Cone/intersection experiment that was built but never added:
+#   - cone axis object based on base [0,0,0], apex [0,1,0], radius 1.0, texture tex11
+#   - optional transforms: rotate [0,0,0.20], translate [-3,3,1.2]
+#   - intersect with sphere radius 2 at [0,1,0], texture tex6
+#
+# - Extra orbit single:
+#   - sphere radius 0.5 at origin, texture tex6
+#   - translate [0,4,2]
+#   - rotate [0.2,0.3,0]
+#
+# - Symmetric sphere cluster:
+#   - large sphere radius 2 at [0,0,2], texture tex6
+#   - medium spheres radius 1 at [-3,0,2], [3,0,2], [0,-3,2], [0,3,2]
+#   - small spheres radius 0.6 at [-3,3,2], [3,3,2], [3,-3,2], [-3,-3,2]
